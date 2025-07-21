@@ -1,5 +1,6 @@
 #function to establish a connection to the database
 import mysql.connector
+
 def connection(password="321@ssaP"):
     conn = mysql.connector.connect(
         host="localhost",

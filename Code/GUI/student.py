@@ -1,0 +1,136 @@
+from textual.app import App, ComposeResult
+from textual.widgets import Label, Button, Input, DataTable, RadioSet, RadioButton
+from textual.containers import Vertical, Horizontal
+from textual.screen import Screen
+from textual.reactive import var
+
+# External input variable
+completed_homework_srno = None
+
+class StudentHome(Screen):
+    selected_option = var("view")
+
+    def compose(self) -> ComposeResult:
+        yield Vertical(
+            Label("hello, student_name!", id="greeting"),
+            RadioSet(
+                RadioButton("view pending homework", id="view", value=True),
+                RadioButton("update homework status", id="update"),
+                id="student-options"
+            ),
+            Horizontal(
+                Button("Proceed", id="proceed-btn", variant="primary"),
+                Button("Exit", id="exit-btn", variant="error"),
+                id="button-row"
+            ),
+            id="student-home"
+        )
+
+    def on_radio_set_changed(self, event: RadioSet.Changed) -> None:
+        self.selected_option = event.pressed.id
+
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        if event.button.id == "proceed-btn":
+            if self.selected_option == "view":
+                self.app.push_screen("view")
+            else:
+                self.app.push_screen("update")
+        elif event.button.id == "exit-btn":
+            self.app.exit()
+
+class ViewHomeworkScreen(Screen):
+    def compose(self) -> ComposeResult:
+        yield Vertical(
+            Label("student_name classXX", id="title"),
+            DataTable(id="homework-table"),
+            Button("Back", id="back-view"),
+            id="view-container"
+        )
+
+    def on_mount(self) -> None:
+        records = [
+            ("2025-07-01", "Math", "Quadratic Equations", "Solve ex 4.3", "2025-07-25"),
+            ("2025-07-05", "Science", "Atoms", "Revise notes", "2025-07-30")
+        ]
+        table = self.query_one("#homework-table", DataTable)
+        table.add_columns("Date", "Subject", "Title", "Description", "Due")
+        for record in records:
+            table.add_row(*record)
+
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        self.app.pop_screen()
+
+class UpdateHomeworkScreen(Screen):
+    def compose(self) -> ComposeResult:
+        yield Vertical(
+            Label("Update Homework Status", id="update-title"),
+            DataTable(id="pending-table"),
+            Input(placeholder="Enter Sr. No. of completed homework", id="srno-input"),
+            Button("Update", id="update-btn", variant="primary"),
+            Button("Back", id="back-update"),
+            id="update-container"
+        )
+
+
+    def on_mount(self) -> None:
+        records = [
+            ("1", "Math", "Quadratic Equations", "2025-07-25"),
+            ("2", "Science", "Atoms", "2025-07-30")
+        ]
+        table = self.query_one("#pending-table", DataTable)
+        table.add_columns("Sr. No.", "Subject", "Title", "Due")
+        for record in records:
+            table.add_row(*record)
+
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        global completed_homework_srno
+        if event.button.id == "update-btn":
+            srno = self.query_one("#srno-input", Input).value
+            completed_homework_srno = srno
+            self.set_timer(1, self.app.pop_screen)
+            self.query_one("#success-msg", Label).display = True
+        elif event.button.id == "back-update":
+            self.app.pop_screen()
+
+
+class StudentApp(App):
+    CSS = """
+    #student-home, #view-container, #update-container {
+        align: center middle;
+        height: 100%;
+    }
+
+    #greeting, #title, #update-title {
+        text-align: center;
+        margin-bottom: 1;
+    }
+
+    #success-msg {
+        color: green;
+        margin-top: 1;
+    }
+
+    #button-row {
+        padding-top: 1;
+        content-align: center middle;
+    }
+
+    #proceed-btn, #exit-btn {
+        margin-left: 1;
+        margin-right: 1;
+    }"""
+
+    def __init__(self, user, ID):
+        super().__init__()
+        self.user = user
+        self.ID = ID
+
+    def on_mount(self) -> None:
+        self.install_screen(StudentHome(), name="home")
+        self.install_screen(ViewHomeworkScreen(), name="view")
+        self.install_screen(UpdateHomeworkScreen(), name="update")
+        self.push_screen("home")
+
+def run_student_app(user, ID):
+    app = StudentApp(user, ID)
+    app.run()
