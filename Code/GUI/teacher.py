@@ -3,6 +3,7 @@ from textual.widgets import Label, Button, Input, DataTable, RadioSet, RadioButt
 from textual.containers import Vertical, Horizontal
 from textual.screen import Screen
 from textual.reactive import var
+from connection import add_homework, name, fetch_all
 
 Add = {}
 Update = {}
@@ -12,7 +13,7 @@ class TeacherHome(Screen):
 
     def compose(self) -> ComposeResult:
         yield Vertical(
-            Label("hello teacher", id="teacher-label"),
+            Label(f"Hello {name(self.app.ID)}!", id="teacher-label"),
             RadioSet(
                 RadioButton("View or edit homeworks", id="view_edit", value=True),
                 RadioButton("View class HW status", id="class_status"),
@@ -40,7 +41,7 @@ class ViewEditScreen(Screen):
 
     def compose(self) -> ComposeResult:
         yield Vertical(
-            Label("All geography homeworks", id="geo-label"),
+            Label(f'All {fetch_all(f"SELECT subject FROM teachers WHERE id = {self.app.ID}")[0]["subject"]} homeworks', id="subject-label"),
             DataTable(id="hw-table"),
             Horizontal(
                 Button("Add", id="add-btn"),
@@ -91,6 +92,8 @@ class AddHomeworkScreen(Screen):
                 "description": self.query_one("#add-desc", Input).value,
                 "due": self.query_one("#add-due", Input).value
             }
+            add_homework(date='2023-10-02', teacher_id=self.app.ID, title=Add['title'], class_=Add['class'], description=Add['description'], due=Add['due'])
+            self.query_one("#add-label", Label).update("Homework added successfully!")
             self.app.pop_screen()
         elif event.button.id == "back-add":
             self.app.pop_screen()

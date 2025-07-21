@@ -80,6 +80,7 @@ def name(ID):
             return result[0]['name']
         else:
             return "Unknown"
+    
 
 def pendinghw(id):
     results = []
@@ -110,16 +111,43 @@ def update_homework_status(id, sr_no):
             results.extend(result)
     return results
 
+# Function to add homework into today's table
+def add_homework(date,teacher_id, title, class_, description, due):
+    subject = fetch_all(f"SELECT subject FROM teachers WHERE id = {teacher_id}")[0]['subject']
+    query = f"INSERT INTO `{date}` (teacher_id, title, class, description, due, subject) VALUES (%s, %s, %s, %s, %s, %s)"
+    params = (teacher_id, title, class_, description, due, subject)
+    execute_query(query, params)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 if __name__ == "__main__":
     # Example usage
-    print("Pending Homework for ID 2001:")
-    pending_homework = pendinghw(2001)
-    for hw in pending_homework:
-        print(hw)
+    # print("Pending Homework for ID 2001:")
+    # pending_homework = pendinghw(2001)
+    # for hw in pending_homework:
+    #     print(hw)
 
-    print("\nUpdating Homework Status for ID 2001, Sr. No. 1:")
-    updated_results = update_homework_status(2001, 1)
-    for result in updated_results:
-        print(result)
+    # print("\nUpdating Homework Status for ID 2001, Sr. No. 1:")
+    # updated_results = update_homework_status(2001, 1)
+    # for result in updated_results:
+    #     print(result)
 
-    print("\nName of ID 2001:", name(2001))
+    # print("\nAdding Homework for Teacher ID 5001:")
+    # add_homework(date='2023-10-02', teacher_id=5001, title='Math Assignment', class_='10A', description='Solve exercises 1 to 10', due='2023-10-09')
+    # print("Homework added successfully.")
+
+    # print("\nName of ID 2001:", name(2001))
+    pass
