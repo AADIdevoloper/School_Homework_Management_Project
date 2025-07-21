@@ -3,7 +3,7 @@ from textual.widgets import Label, Button, Input, DataTable, RadioSet, RadioButt
 from textual.containers import Vertical, Horizontal
 from textual.screen import Screen
 from textual.reactive import var
-from connection import pendinghw, name
+from connection import pendinghw, update_homework_status, name, execute_query, fetch_all
 
 # External input variable
 completed_homework_srno = None
@@ -77,22 +77,43 @@ class UpdateHomeworkScreen(Screen):
 
 
     def on_mount(self) -> None:
-        records = [
-            ("1", "Math", "Quadratic Equations", "2025-07-25"),
-            ("2", "Science", "Atoms", "2025-07-30")
-        ]
-        table = self.query_one("#pending-table", DataTable)
-        table.add_columns("Sr. No.", "Subject", "Title", "Due")
-        for record in records:
-            table.add_row(*record)
+        global result
+        result = update_homework_status(id=self.app.ID, sr_no=completed_homework_srno)
+        if result:
+            records = [(item['sr_no'], item['date'], item['subject'], item['title'], item['due']) for item in result]
+            table = self.query_one("#pending-table", DataTable)
+            table.add_columns("Sr. No.", "Assigned on", "Subject", "Title", "Due")
+            for record in records:
+                table.add_row(*record)
+        else:
+            table = self.query_one("#pending-table", DataTable)
+            table.add_columns("No pending homework found in this week")
+            table.add_row("")
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         global completed_homework_srno
         if event.button.id == "update-btn":
-            srno = self.query_one("#srno-input", Input).value
-            completed_homework_srno = srno
+            completed_homework_srno = self.query_one("#srno-input", Input).value
+            print("\n", "Serial No:", completed_homework_srno)
+            try:
+                srno_int = int(completed_homework_srno)
+            except ValueError:
+                self.query_one("#update-title", Label).update("Please enter a valid Sr. No.")
+                return
+            updated = False
+            for dict in result:
+                print(dict)
+                if dict['sr_no'] == srno_int:
+                    class_ = fetch_all(f"SELECT class FROM students WHERE id = {self.app.ID}")[0]['class']
+                    query = f"UPDATE `{dict['date']}` SET id{self.app.ID} = 1 WHERE id{self.app.ID} = 0 AND class = '{class_}' AND title = '{dict['title']}'"
+                    print("Executing query:", query)
+                    execute_query(query)
+                    self.query_one("#update-title", Label).update("Homework status updated successfully!")
+                    updated = True
+                    break
+            if not updated:
+                self.query_one("#update-title", Label).update("No matching homework found for the entered Sr. No.")
             self.set_timer(1, self.app.pop_screen)
-            self.query_one("#success-msg", Label).display = True
         elif event.button.id == "back-update":
             self.app.pop_screen()
 

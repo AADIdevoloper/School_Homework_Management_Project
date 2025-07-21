@@ -84,7 +84,6 @@ def name(ID):
 def pendinghw(id):
     results = []
     class_ = fetch_all(f"SELECT class FROM students WHERE id = {id}")[0]['class']
-    print(f"Class of student {id} is {class_}.")
     for date in date_range("2023-10-01"):
         query = f"SELECT subject,title,description,due FROM `{date}` WHERE id{id} = 0 AND class = '{class_}'"
         result = fetch_all(query)
@@ -92,15 +91,35 @@ def pendinghw(id):
             for item in result:
                 item['date'] = date
             results.extend(result)
-            print(f"Pending homework for {id} on {date}: {result}")
-        else:
-            print(f"No pending homework for {id} on {date}.")
     return results
 
 
-for result in pendinghw(2002):
-    for key, value in result.items():
-        print(f"{key}: {value}")
-    print()
 
-print(name(2002)) # Example usage to fetch the name of a student or teacher
+def update_homework_status(id, sr_no):
+    results = []
+    class_ = fetch_all(f"SELECT class FROM students WHERE id = {id}")[0]['class']
+    num=0
+    for date in date_range("2023-10-01"):
+        query = f"SELECT subject,title,due,class FROM `{date}` WHERE id{id} = 0 AND class = '{class_}'"
+        result = fetch_all(query)
+        if result:
+            for item in result:
+                num += 1
+                item['date'] = date
+                item['sr_no'] = num
+            results.extend(result)
+    return results
+
+if __name__ == "__main__":
+    # Example usage
+    print("Pending Homework for ID 2001:")
+    pending_homework = pendinghw(2001)
+    for hw in pending_homework:
+        print(hw)
+
+    print("\nUpdating Homework Status for ID 2001, Sr. No. 1:")
+    updated_results = update_homework_status(2001, 1)
+    for result in updated_results:
+        print(result)
+
+    print("\nName of ID 2001:", name(2001))
