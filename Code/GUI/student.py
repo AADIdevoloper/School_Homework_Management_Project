@@ -3,6 +3,7 @@ from textual.widgets import Label, Button, Input, DataTable, RadioSet, RadioButt
 from textual.containers import Vertical, Horizontal
 from textual.screen import Screen
 from textual.reactive import var
+from connection import pendinghw, name
 
 # External input variable
 completed_homework_srno = None
@@ -12,7 +13,7 @@ class StudentHome(Screen):
 
     def compose(self) -> ComposeResult:
         yield Vertical(
-            Label("hello, student_name!", id="greeting"),
+            Label(f"hello, {name(self.app.ID)}!", id="greeting"),
             RadioSet(
                 RadioButton("view pending homework", id="view", value=True),
                 RadioButton("update homework status", id="update"),
@@ -48,14 +49,17 @@ class ViewHomeworkScreen(Screen):
         )
 
     def on_mount(self) -> None:
-        records = [
-            ("2025-07-01", "Math", "Quadratic Equations", "Solve ex 4.3", "2025-07-25"),
-            ("2025-07-05", "Science", "Atoms", "Revise notes", "2025-07-30")
-        ]
-        table = self.query_one("#homework-table", DataTable)
-        table.add_columns("Date", "Subject", "Title", "Description", "Due")
-        for record in records:
-            table.add_row(*record)
+        result = pendinghw(self.app.ID)
+        if result:
+            records = [(item['date'], item['subject'], item['title'], item['description'], item['due']) for item in result]
+            table = self.query_one("#homework-table", DataTable)
+            table.add_columns("Date", "Subject", "Title", "Description", "Due")
+            for record in records:
+                table.add_row(*record)
+        else:
+            table = self.query_one("#homework-table", DataTable)
+            table.add_columns("No pending homework found")
+            table.add_row("")
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         self.app.pop_screen()

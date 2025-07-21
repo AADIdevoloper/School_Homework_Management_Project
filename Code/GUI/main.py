@@ -4,8 +4,6 @@ from connection import connection, close_connection
 
 connection()
 
-
-
 class HomeworkApp(App):
     CSS = """
     #title {
@@ -40,7 +38,11 @@ class HomeworkApp(App):
         self.push_screen("welcome")
 
 if __name__ == "__main__":
+    import login
     result = HomeworkApp().run()
+    # Get User and ID after login flow
+    User = login.User
+    ID = login.ID
     if result == "student":
         import student
         student.run_student_app(User, ID)

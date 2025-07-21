@@ -98,6 +98,31 @@ VALUES
 ('11C', '5009', 'Science', 'Physics Project', 'Prepare a project on renewable energy sources', '2023-10-23'),
 ('12A', '5010', 'English', 'Creative Writing Assignment', 'Write a short story based on a given prompt.',  "2023-10-24");
 
+-- Add 20 different values to the table with teachers names matching the class and subject
+INSERT INTO `2023-10-02` (class, teacher_id, subject, title, description,due)
+VALUES
+('8A', '5001', 'Mathematics', 'Algebra Quiz', 'Prepare for the algebra quiz on Friday', '2023-10-05'),
+('9B', '5002', 'Science', 'Physics Quiz', 'Revise chapter 5 for the quiz', '2023-10-06'),
+('10C', '5003', 'English', 'Literature Quiz', 'Prepare for the literature quiz on Monday', '2023-10-07'),
+('11A', '5004', 'Hindi', 'Grammar Quiz', 'Revise grammar rules for the quiz', '2023-10-08'),
+('12B', '5005', 'Social Studies', 'History Quiz', 'Study the Indian Independence movement for the quiz', '2023-10-09'),
+('8C', '5006', 'Marathi', 'Vocabulary Quiz', 'Learn new vocabulary words for the quiz', '2023-10-10'),
+('9A', '5007', 'Computer', 'Programming Quiz', 'Revise Python basics for the quiz', '2023-10-11'),
+('10B', '5008', 'Mathematics', 'Geometry Quiz', 'Prepare for the geometry quiz on Wednesday', '2023-10-12'),
+('11C', '5009', 'Science', 'Biology Quiz', 'Revise human anatomy for the quiz on Thursday.',  "2023-10-13"),
+('12A', '5010', 'English', 'Essay Writing Contest.',  "Write an essay on environmental conservation.",  "2023-10-14"),
+('8A','5001','Mathematics','Statistics Quiz','Prepare for the statistics quiz next week.','2023-10-15'),
+('9B','5002','Science','Chemistry Quiz','Revise chemical reactions for the quiz.','2023-10-16'),
+('10C','5003','English','Grammar Quiz','Complete grammar exercises in workbook.','2023-10-17'),
+('11A','5004','Hindi','Essay Writing Contest','Write an essay on your favorite festival.','2023-10-18'),
+('12B','5005','Social Studies','Geography Quiz','Prepare for world geography quiz.','2023-10-19'),
+('8C','5006','Marathi','Literature Review Assignment.','Review the poem studied in class.','2023-10-20'),
+('9A','5007','Computer','Web Development Quiz','Create a simple webpage using HTML and CSS.','2023-10-21'),
+('10B','5008','Mathematics','Calculus Quiz','Solve calculus problems on page 60 of the textbook.','2023-10-22'),
+('11C','5009','Science','Physics Project Presentation.','Prepare a project on renewable energy sources.','2023-10-23'),
+('12A','5010','English','Creative Writing Contest.','Write a short story based on a given prompt.','2023-10-24');
+
+
 -- Create a table for students
 CREATE TABLE IF NOT EXISTS students (
     id INT PRIMARY KEY,

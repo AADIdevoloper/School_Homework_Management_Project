@@ -1,5 +1,8 @@
 #function to establish a connection to the database
 import mysql.connector
+from datetime import datetime, timedelta
+def today():
+    return datetime.now().strftime("%Y-%m-%d") 
 
 def connection(password="321@ssaP"):
     conn = mysql.connector.connect(
@@ -49,10 +52,55 @@ def fetch_all(query, params=None):
         if results:
             return results
         else:
-            raise ValueError("No results found for your query.")
+            print("No results found.")
+            return []
     except mysql.connector.Error as err:
         print(f"Error: {err}")
         return []
     finally:
         cursor.close()
         close_connection(conn)
+
+def date_range(date=today()):
+    dates=[]
+    # Generates a list of dates that are all 7 days from today to 7 days back
+    date_obj = datetime.strptime(date, "%Y-%m-%d")
+    for i in range(7):
+        dates.append((date_obj - timedelta(days=i)).strftime("%Y-%m-%d"))
+    return dates
+
+def name(ID):
+    # Fetches the name of the student or teacher based on their ID
+    result = fetch_all(f"SELECT name FROM students WHERE id = {ID}")
+    if result:
+        return result[0]['name']
+    else:
+        result = fetch_all(f"SELECT name FROM teachers WHERE id = {ID}")
+        if result:
+            return result[0]['name']
+        else:
+            return "Unknown"
+
+def pendinghw(id):
+    results = []
+    class_ = fetch_all(f"SELECT class FROM students WHERE id = {id}")[0]['class']
+    print(f"Class of student {id} is {class_}.")
+    for date in date_range("2023-10-01"):
+        query = f"SELECT subject,title,description,due FROM `{date}` WHERE id{id} = 0 AND class = '{class_}'"
+        result = fetch_all(query)
+        if result:
+            for item in result:
+                item['date'] = date
+            results.extend(result)
+            print(f"Pending homework for {id} on {date}: {result}")
+        else:
+            print(f"No pending homework for {id} on {date}.")
+    return results
+
+
+for result in pendinghw(2002):
+    for key, value in result.items():
+        print(f"{key}: {value}")
+    print()
+
+print(name(2002)) # Example usage to fetch the name of a student or teacher
