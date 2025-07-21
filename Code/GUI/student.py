@@ -106,14 +106,13 @@ class UpdateHomeworkScreen(Screen):
                 if dict['sr_no'] == srno_int:
                     class_ = fetch_all(f"SELECT class FROM students WHERE id = {self.app.ID}")[0]['class']
                     query = f"UPDATE `{dict['date']}` SET id{self.app.ID} = 1 WHERE id{self.app.ID} = 0 AND class = '{class_}' AND title = '{dict['title']}'"
-                    print("Executing query:", query)
                     execute_query(query)
                     self.query_one("#update-title", Label).update("Homework status updated successfully!")
                     updated = True
                     break
             if not updated:
                 self.query_one("#update-title", Label).update("No matching homework found for the entered Sr. No.")
-            self.set_timer(1, self.app.pop_screen)
+            self.set_timer(2, self.app.pop_screen)
         elif event.button.id == "back-update":
             self.app.pop_screen()
 
