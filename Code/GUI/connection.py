@@ -264,4 +264,6 @@ if __name__ == "__main__":
 
     #Check add_student function
     # add_student('2021', 'John Doe', '2005-05-15', '10A', '123 Main St')
-    pass
+
+    #Check update_student function
+    update_student('2021', 'John Doe', '2005-05-15', '10A', '456 Elm St')

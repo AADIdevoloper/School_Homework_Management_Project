@@ -94,7 +94,6 @@ class UpdateHomeworkScreen(Screen):
         global completed_homework_srno
         if event.button.id == "update-btn":
             completed_homework_srno = self.query_one("#srno-input", Input).value
-            print("\n", "Serial No:", completed_homework_srno)
             try:
                 srno_int = int(completed_homework_srno)
             except ValueError:
@@ -102,7 +101,6 @@ class UpdateHomeworkScreen(Screen):
                 return
             updated = False
             for dict in result:
-                print(dict)
                 if dict['sr_no'] == srno_int:
                     class_ = fetch_all(f"SELECT class FROM students WHERE id = {self.app.ID}")[0]['class']
                     query = f"UPDATE `{dict['date']}` SET id{self.app.ID} = 1 WHERE id{self.app.ID} = 0 AND class = '{class_}' AND title = '{dict['title']}'"

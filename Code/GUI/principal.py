@@ -3,7 +3,7 @@ from textual.widgets import Label, Button, Input, DataTable, RadioSet, RadioButt
 from textual.containers import Vertical, Horizontal
 from textual.screen import Screen
 from textual.reactive import var
-from connection import show_students, show_teachers, name, execute_query, fetch_all, add_student, add_teacher
+from connection import show_students, show_teachers, name, execute_query, fetch_all, add_student, add_teacher, update_student, update_teacher
 
 Add = {}
 Update = {}
@@ -113,6 +113,8 @@ class AddScreen(Screen):
 class UpdateScreen(Screen):
     def compose(self) -> ComposeResult:
         yield Vertical(
+            Label("Update Student or Teacher"),
+            Label("ID should start with 2 for Student and 5 for Teacher", id="error-message"),
             Input(placeholder="ID", id="id"),
             Input(placeholder="Name", id="name"),
             Input(placeholder="DOB or Subject", id="special"),
@@ -134,6 +136,13 @@ class UpdateScreen(Screen):
                 "class": self.query_one("#class", Input).value,
                 "address": self.query_one("#address", Input).value,
             }
+            try:
+                if str(Update['id']).startswith("5"):
+                    update_teacher(Update['id'], Update['name'], Update['special'], Update['class'], Update['address'])
+                elif str(Update['id']).startswith("2"):
+                    update_student(Update['id'], Update['name'], Update['special'], Update['class'], Update['address'])
+            except Exception as e:
+                self.query_one("#error-message", Label).update("Error updating record, please try again")
         self.app.pop_screen()
 
 class ClassHWStatusScreen(Screen):

@@ -127,7 +127,6 @@ class UpdateHomeworkScreen(Screen):
                 "description": self.query_one("#upd-desc", Input).value,
                 "due": self.query_one("#upd-due", Input).value
             }
-            print("\n", "Serial No:", Update['sr_no'])
             try:
                 srno_int = int(Update['sr_no'])
             except ValueError:
@@ -135,7 +134,6 @@ class UpdateHomeworkScreen(Screen):
                 return
             updated = False
             for dict in result:
-                print(dict)
                 if dict['index'] == srno_int:
                     query = f"""UPDATE `{dict['date']}` SET title = \"{Update['title'] if Update['title'] else dict['title']}\",
                     class = \"{Update['class'] if Update['class'] else dict['class']}\",
