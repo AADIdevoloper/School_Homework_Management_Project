@@ -13,7 +13,7 @@ from pymongo.server_api import ServerApi
 
 #---------------------------------------------------- CONNECTING TO DB [START] -------------------------------------------------- 
 
-uri = "mongodb+srv://user:r8zss2LZINqg3Jb7@cluster0.nhvpwbz.mongodb.net/?retryWrites=true&w=majority" #r8zss2LZINqg3Jb7
+uri = "Note to developer: Open MondoDB Compass and check in saved connections"
 
 # Create a new client and connect to the server 
 myclient = MongoClient(uri, server_api=ServerApi('1'))   # I don't know what the server_api=ServerApi('1') is for, but is was given by the sample code by mongo db :/
