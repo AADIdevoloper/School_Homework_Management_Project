@@ -249,6 +249,8 @@ def all_teacher_status():
                                'name': name(teacher_id['id'])})
     return results
 
+
+
 if __name__ == "__main__":
     # Example usage
     # print("Pending Homework for ID 2001:")

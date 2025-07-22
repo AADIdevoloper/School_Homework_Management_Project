@@ -48,6 +48,7 @@ class EditScreen(Screen):
             Horizontal(
                 Button("Add", id="add-btn", variant="success"),
                 Button("Update", id="update-btn", variant="primary"),
+                Button("Delete", id="delete-btn", variant="error"),
                 Button("Back", id="back-btn", variant="warning"),
             )
         )
@@ -71,6 +72,8 @@ class EditScreen(Screen):
             self.app.push_screen(AddScreen())
         elif event.button.id == "update-btn":
             self.app.push_screen(UpdateScreen())
+        elif event.button.id == "delete-btn":
+            self.app.push_screen(DeleteScreen())
         else:
             self.app.pop_screen()
 
@@ -145,6 +148,28 @@ class UpdateScreen(Screen):
                 self.query_one("#error-message", Label).update("Error updating record, please try again")
         self.app.pop_screen()
 
+class DeleteScreen(Screen):
+    def compose(self) -> ComposeResult:
+        yield Vertical(
+            Label("Delete Student or Teacher"),
+            Label("ID should start with 2 for Student and 5 for Teacher", id="error-message"),
+            Input(placeholder="ID", id="id"),
+            Horizontal(
+                Button("Delete", id="delete-final", variant="error"),
+                Button("Back", id="back", variant="warning")
+            )
+        )
+
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        if event.button.id == "delete-final":
+            id_to_delete = self.query_one("#id", Input).value
+            if str(id_to_delete).startswith("5"):
+                execute_query(f"DELETE FROM teachers WHERE id = {id_to_delete}")
+            elif str(id_to_delete).startswith("2"):
+                execute_query(f"DELETE FROM students WHERE id = {id_to_delete}")
+            else:
+                self.query_one("#error-message", Label).update("Invalid ID: ID should start with 2 for Student and 5 for Teacher")
+        self.app.pop_screen()
 class ClassHWStatusScreen(Screen):
     def compose(self) -> ComposeResult:
         yield Vertical(
