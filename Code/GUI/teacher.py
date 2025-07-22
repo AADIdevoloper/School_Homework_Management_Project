@@ -3,7 +3,7 @@ from textual.widgets import Label, Button, Input, DataTable, RadioSet, RadioButt
 from textual.containers import Vertical, Horizontal
 from textual.screen import Screen
 from textual.reactive import var
-from connection import add_homework, name, fetch_all
+from connection import add_homework, name, fetch_all, show_homework, execute_query
 
 Add = {}
 Update = {}
@@ -53,14 +53,18 @@ class ViewEditScreen(Screen):
         )
 
     def on_mount(self) -> None:
-        table = self.query_one("#hw-table", DataTable)
-        table.add_columns("Sr no.", "Date", "Title", "Class", "Description", "Assigned by", "Due")
-        dummy_data = [
-            ("1", "2025-07-01", "Map Work", "10A", "Draw India's map", "teacher1", "2025-07-20"),
-            ("2", "2025-07-02", "Climate", "10B", "Complete exercise 3", "teacher1", "2025-07-21")
-        ]
-        for row in dummy_data:
-            table.add_row(*row)
+        global result
+        result = show_homework(self.app.ID)
+        if result:
+            records = [(item['index'], item['date'], item['title'], item['class'], item['description'], item['due'], name(item['teacher_id'])) for item in result]
+            table = self.query_one("#hw-table", DataTable)
+            table.add_columns("Sr. No.","Date", "Title", "Class", "Description", "Due", "Assigned by")
+            for record in records:
+                table.add_row(*record)
+        else:
+            table = self.query_one("#hw-table", DataTable)
+            table.add_columns("No homework found")
+            table.add_row("")
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         if event.button.id == "add-btn":
@@ -123,7 +127,27 @@ class UpdateHomeworkScreen(Screen):
                 "description": self.query_one("#upd-desc", Input).value,
                 "due": self.query_one("#upd-due", Input).value
             }
-            self.app.pop_screen()
+            print("\n", "Serial No:", Update['sr_no'])
+            try:
+                srno_int = int(Update['sr_no'])
+            except ValueError:
+                self.query_one("#update-label", Label).update("Please enter a valid Sr. No.")
+                return
+            updated = False
+            for dict in result:
+                print(dict)
+                if dict['index'] == srno_int:
+                    query = f"""UPDATE `{dict['date']}` SET title = \"{Update['title'] if Update['title'] else dict['title']}\",
+                    class = \"{Update['class'] if Update['class'] else dict['class']}\",
+                    description = \"{Update['description'] if Update['description'] else dict['description']}\",
+                    due = \"{Update['due'] if Update['due'] else dict['due']}\" WHERE sr_no = {dict['sr_no']} AND teacher_id = {self.app.ID}"""
+                    execute_query(query)
+                    self.query_one("#update-label", Label).update("Homework status updated successfully!")
+                    updated = True
+                    break
+            if not updated:
+                self.query_one("#update-label", Label).update("No matching homework found for the entered Sr. No.")
+            self.set_timer(2, self.app.pop_screen)
         elif event.button.id == "back-update":
             self.app.pop_screen()
 

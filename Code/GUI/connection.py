@@ -1,6 +1,6 @@
 #function to establish a connection to the database
 import mysql.connector
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 def today():
     return datetime.now().strftime("%Y-%m-%d") 
 
@@ -11,16 +11,12 @@ def connection(password="321@ssaP"):
         password=password,
         database="homework_db"
     )
-    print("\t \t \t \t Connection opened")
     return conn
 
 #function to close the connection
 def close_connection(conn):
     if conn.is_connected():
         conn.close()
-        print("\t \t \t \t Connection closed.")
-    else:
-        print("\t \t \t \t Connection is already closed.")
 
 #function to execute queries but not fetch results
 def execute_query(query, params=None):
@@ -99,31 +95,44 @@ def pendinghw(id):
 def update_homework_status(id, sr_no):
     results = []
     class_ = fetch_all(f"SELECT class FROM students WHERE id = {id}")[0]['class']
-    num=0
+    num1=0
     for date in date_range("2023-10-01"):
         query = f"SELECT subject,title,due,class FROM `{date}` WHERE id{id} = 0 AND class = '{class_}'"
         result = fetch_all(query)
         if result:
             for item in result:
-                num += 1
+                num1 += 1
                 item['date'] = date
-                item['sr_no'] = num
+                item['sr_no'] = num1
             results.extend(result)
     return results
 
-# Function to add homework into today's table
 def add_homework(date,teacher_id, title, class_, description, due):
     subject = fetch_all(f"SELECT subject FROM teachers WHERE id = {teacher_id}")[0]['subject']
     query = f"INSERT INTO `{date}` (teacher_id, title, class, description, due, subject) VALUES (%s, %s, %s, %s, %s, %s)"
     params = (teacher_id, title, class_, description, due, subject)
     execute_query(query, params)
 
+def show_homework(id):
+    results = []
+    subject = fetch_all(f"SELECT subject FROM teachers WHERE id = {id}")[0]['subject']
+    num2=0
+    for date in date_range("2023-10-02"):
+        query = f"SELECT title,description,due,sr_no,class FROM `{date}` WHERE teacher_id = {id}"
+        result = fetch_all(query)
+        if result:
+            for item in result:
+                num2 += 1
+                item['index'] = num2
+                item['date'] = date
+                item['subject'] = subject
+                item['teacher_id'] = id
+            results.extend(result)
+    return results
 
 
-
-
-
-
+query = f'UPDATE `2023-10-02` SET title = "Don\'t do anything", class = "10C", description = "Nothing", due = "2023-10-09" WHERE teacher_id = 5003 AND title = "Don\'t write lol" '
+print(fetch_all(query))
 
 
 
@@ -150,4 +159,9 @@ if __name__ == "__main__":
     # print("Homework added successfully.")
 
     # print("\nName of ID 2001:", name(2001))
+
+    #Check show_homework function
+    # show_homework = show_homework(5003)
+    # for hw in show_homework:
+    #     print(hw)
     pass
