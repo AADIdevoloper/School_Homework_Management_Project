@@ -223,6 +223,15 @@ def update_teacher(id, name, subject, class_, address):
     params = (name, subject, class_, address, id)
     execute_query(query, params)
 
+def all_class_status():
+    results = []
+    teacher_ids = fetch_all("SELECT id FROM teachers")
+    for teacher_id in teacher_ids:
+        class_status = class_homework_status(teacher_id['id'])
+        if class_status:
+            results.append(class_status[0])
+    return results
+
 
 if __name__ == "__main__":
     # Example usage
@@ -266,4 +275,9 @@ if __name__ == "__main__":
     # add_student('2021', 'John Doe', '2005-05-15', '10A', '123 Main St')
 
     #Check update_student function
-    update_student('2021', 'John Doe', '2005-05-15', '10A', '456 Elm St')
+    # update_student('2021', 'John Doe', '2005-05-15', '10A', '456 Elm St')
+    
+    #Check all_class_status function
+    # all_status = all_class_status()
+    # for status in all_status:
+    #     print(status)
