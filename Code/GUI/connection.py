@@ -172,15 +172,39 @@ def individual_homework_status(name,class_):
             results.extend(result)
     return results
 
-''' 
-        table.add_columns("Class", "Total Students", "No. of Submissions", "Percent Completed")
-        data = [
-            ("10A", "30", "27", "90%"),
-            ("10B", "32", "29", "91%")
-        ]
-        for row in data:
-            table.add_row(*row)
-''' 
+def show_students():
+    results = fetch_all("SELECT id, name, DOB, class, address FROM students")
+    completed_hws=0
+    for result in results:
+        for date in date_range("2023-10-02"):
+            try:
+                query = f"SELECT id{result['id']} FROM `{date}` WHERE class = '{result['class']}'"
+                hw_result = fetch_all(query)[0][f'id{result["id"]}']
+                if hw_result == 1:
+                    completed_hws += 1
+            except IndexError:
+                pass
+        result['completed_hw'] = completed_hws
+        result['overall_percent'] = f"{(completed_hws / 7) * 100:.2f}%" if completed_hws > 0 else "0%"
+        completed_hws = 0
+    return results
+
+def show_teachers():
+    results = fetch_all("SELECT id, name, subject, class, address FROM teachers")
+    assigned_hws=0
+    for result in results:
+        for date in date_range("2023-10-02"):
+            query = f"SELECT teacher_id FROM `{date}` WHERE teacher_id = {result['id']}"
+            hw_result = fetch_all(query)
+            if hw_result:
+                assigned_hws += 1
+        result['assigned_hw'] = assigned_hws
+        result['overall_percent'] = class_homework_status(result['id'])[0]['percent_completed']
+        assigned_hws = 0
+    return results
+
+
+
 if __name__ == "__main__":
     # Example usage
     # print("Pending Homework for ID 2001:")
@@ -210,8 +234,11 @@ if __name__ == "__main__":
     #     print(status)
 
     #Check individual_homework_status function
-    individual_status = individual_homework_status("Sneha Patel", "10C")
-    for status in individual_status:
-        print(status)
+    # individual_status = individual_homework_status("Sneha Patel", "10C")
+    # for status in individual_status:
+    #     print(status)
 
-    pass
+    #Check show_students function
+    students = show_students()
+    for student in students:
+        print(student)

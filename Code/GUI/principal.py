@@ -3,6 +3,7 @@ from textual.widgets import Label, Button, Input, DataTable, RadioSet, RadioButt
 from textual.containers import Vertical, Horizontal
 from textual.screen import Screen
 from textual.reactive import var
+from connection import show_students, show_teachers, name, execute_query, fetch_all
 
 Add = {}
 Update = {}
@@ -12,11 +13,11 @@ class PrincipalHome(Screen):
 
     def compose(self) -> ComposeResult:
         yield Vertical(
-            Label("hello Principal"),
+            Label("Hello Principal!"),
             RadioSet(
-                RadioButton("View and edit Teachers and Students", id="edit", value=True),
-                RadioButton("View HW status with respect to class", id="class"),
-                RadioButton("View HW status with respect to teacher", id="teacher"),
+                RadioButton("View and Edit Teachers and Students", id="edit", value=True),
+                RadioButton("View HW status with respect to Class", id="class"),
+                RadioButton("View HW status with respect to Teacher", id="teacher"),
             ),
             Horizontal(
                 Button("Proceed", id="proceed-btn", variant="primary"),
@@ -52,13 +53,18 @@ class EditScreen(Screen):
         )
 
     def on_mount(self) -> None:
+        global students, teachers
+        students = show_students()
         st_table = self.query_one("#students-table", DataTable)
         st_table.add_columns("ID", "Name", "DOB", "Class", "Completed HW", "Overall %", "Address")
-        st_table.add_row("1", "Aman", "2008-01-01", "10", "3", "75%", "Delhi")
+        for student in students:
+            st_table.add_row(student['id'], student['name'], student['DOB'], student['class'], student['completed_hw'], student['overall_percent'], student['address'])
 
+        teachers = show_teachers()
         t_table = self.query_one("#teachers-table", DataTable)
         t_table.add_columns("ID", "Name", "Subject", "Class", "Assigned HW", "Overall %", "Address")
-        t_table.add_row("1", "Mr. Verma", "Math", "10", "6", "85%", "Pune")
+        for teacher in teachers:
+            t_table.add_row(teacher['id'], teacher['name'], teacher['subject'], teacher['class'], teacher['assigned_hw'], teacher['overall_percent'], teacher['address'])
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         if event.button.id == "add-btn":

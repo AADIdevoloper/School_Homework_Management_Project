@@ -73,10 +73,10 @@ class IDScreen(Screen):
 
         User = self.app.role
         if User == "Student":
-            ID = int("200" + str(id_val))
+            ID = 2000 + int(id_val)
             self.app.exit("student")
         elif User == "Teacher":
-            ID = int("500" + str(id_val))
+            ID = 5000 + int(id_val)
             self.app.exit("teacher")
         else:
             ID = 1000
