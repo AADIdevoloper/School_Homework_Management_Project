@@ -46,6 +46,7 @@ class ViewEditScreen(Screen):
             Horizontal(
                 Button("Add", id="add-btn"),
                 Button("Update", id="update-btn"),
+                Button("Delete", id="delete-btn"),
                 Button("Back", id="back-btn"),
                 id="btn-row"
             ),
@@ -71,6 +72,8 @@ class ViewEditScreen(Screen):
             self.app.push_screen("add_hw")
         elif event.button.id == "update-btn":
             self.app.push_screen("update_hw")
+        elif event.button.id == "delete-btn":
+            self.app.push_screen("delete_hw")
         elif event.button.id == "back-btn":
             self.app.pop_screen()
 class AddHomeworkScreen(Screen):
@@ -119,6 +122,8 @@ class UpdateHomeworkScreen(Screen):
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         global Update
+        global result
+        result = show_homework(self.app.ID)
         if event.button.id == "submit-update":
             Update = {
                 "sr_no": self.query_one("#upd-sr", Input).value,
@@ -149,6 +154,38 @@ class UpdateHomeworkScreen(Screen):
         elif event.button.id == "back-update":
             self.app.pop_screen()
 
+class DeleteHomeworkScreen(Screen):
+    def compose(self) -> ComposeResult:
+        yield Vertical(
+            Label("Delete Homework", id="delete-label"),
+            Input(placeholder="Sr no.", id="del-sr"),
+            Horizontal(
+                Button("Delete", id="submit-delete", variant="error"),
+                Button("Back", id="back-delete", variant="primary")
+            ))
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        global result
+        result = show_homework(self.app.ID)
+        if event.button.id == "submit-delete":
+            sr_no = self.query_one("#del-sr", Input).value
+            try:
+                sr_no_int = int(sr_no)
+            except ValueError:
+                self.query_one("#delete-label", Label).update("Please enter a valid Sr. No.")
+                return
+            deleted = False
+            for dict in result:
+                if dict['index'] == sr_no_int:
+                    query = f"DELETE FROM `{dict['date']}` WHERE sr_no = {dict['sr_no']} AND teacher_id = {self.app.ID}"
+                    execute_query(query)
+                    self.query_one("#delete-label", Label).update("Homework deleted successfully!")
+                    deleted = True
+                    break
+            if not deleted:
+                self.query_one("#delete-label", Label).update("No matching homework found for the entered Sr. No.")
+            self.set_timer(2, self.app.pop_screen)
+        elif event.button.id == "back-delete":
+            self.app.pop_screen()
 class ClassStatusScreen(Screen):
     def compose(self) -> ComposeResult:
         yield Vertical(
@@ -169,7 +206,7 @@ class ClassStatusScreen(Screen):
             table = self.query_one("#class-table", DataTable)
             table.add_columns("No homework found")
             table.add_row("")
-            
+
     def on_button_pressed(self, event: Button.Pressed) -> None:
         self.app.pop_screen()
 
@@ -236,6 +273,7 @@ class TeacherApp(App):
         self.install_screen(ViewEditScreen(), name="view_edit")
         self.install_screen(AddHomeworkScreen(), name="add_hw")
         self.install_screen(UpdateHomeworkScreen(), name="update_hw")
+        self.install_screen(DeleteHomeworkScreen(), name="delete_hw")
         self.install_screen(ClassStatusScreen(), name="class_status")
         self.install_screen(StudentStatusInputScreen(), name="student_status")
         self.install_screen(StudentStatusTableScreen(), name="student-status-table")
