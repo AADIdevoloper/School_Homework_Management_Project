@@ -3,7 +3,7 @@ from textual.widgets import Label, Button, Input, DataTable, RadioSet, RadioButt
 from textual.containers import Vertical, Horizontal
 from textual.screen import Screen
 from textual.reactive import var
-from connection import show_students, show_teachers, name, execute_query, fetch_all
+from connection import show_students, show_teachers, name, execute_query, fetch_all, add_student, add_teacher
 
 Add = {}
 Update = {}
@@ -77,6 +77,8 @@ class EditScreen(Screen):
 class AddScreen(Screen):
     def compose(self) -> ComposeResult:
         yield Vertical(
+            Label("Add Student or Teacher"),
+            Label("ID should start with 2 for Student and 5 for Teacher",id="error-message"),
             Input(placeholder="ID", id="id"),
             Input(placeholder="Name", id="name"),
             Input(placeholder="DOB or Subject", id="special"),
@@ -98,6 +100,14 @@ class AddScreen(Screen):
                 "class": self.query_one("#class", Input).value,
                 "address": self.query_one("#address", Input).value,
             }
+        if str(Add['id']).startswith("5"):
+            add_teacher(Add['id'], Add['name'], Add['special'], Add['class'], Add['address'])
+        elif str(Add['id']).startswith("2"):
+            add_student(Add['id'], Add['name'], Add['special'], Add['class'], Add['address'])
+        elif Add['id'] in [str(student['id']) for student in show_students()] + [str(teacher['id']) for teacher in show_teachers()]:
+            self.query_one("#error-message", Label).update("The ID Already Exists! Use Update Button instead.")
+        else:
+            self.query_one("#error-message", Label).update("Invalid ID: ID should start with 2 for Student and 5 for Teacher")
         self.app.pop_screen()
 
 class UpdateScreen(Screen):

@@ -203,6 +203,25 @@ def show_teachers():
         assigned_hws = 0
     return results
 
+def add_student(id, name, dob, class_, address):
+    query = "INSERT INTO students (id, name, DOB, class, address) VALUES (%s, %s, %s, %s, %s)"
+    params = (id, name, dob, class_, address)
+    execute_query(query, params)
+
+def add_teacher(id, name, subject, class_, address):
+    query = "INSERT INTO teachers (id, name, subject, class, address) VALUES (%s, %s, %s, %s, %s)"
+    params = (id, name, subject, class_, address)
+    execute_query(query, params)
+    
+def update_student(id, name, dob, class_, address):
+    query = "UPDATE students SET name = %s, DOB = %s, class = %s, address = %s WHERE id = %s"
+    params = (name, dob, class_, address, id)
+    execute_query(query, params)
+
+def update_teacher(id, name, subject, class_, address):
+    query = "UPDATE teachers SET name = %s, subject = %s, class = %s, address = %s WHERE id = %s"
+    params = (name, subject, class_, address, id)
+    execute_query(query, params)
 
 
 if __name__ == "__main__":
@@ -239,6 +258,10 @@ if __name__ == "__main__":
     #     print(status)
 
     #Check show_students function
-    students = show_students()
-    for student in students:
-        print(student)
+    # students = show_students()
+    # for student in students:
+    #     print(student)
+
+    #Check add_student function
+    # add_student('2021', 'John Doe', '2005-05-15', '10A', '123 Main St')
+    pass
