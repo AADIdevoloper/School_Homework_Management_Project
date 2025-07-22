@@ -205,7 +205,8 @@ class StudentStatusTableScreen(Screen):
     def on_mount(self) -> None:
         global result
         if not result:
-            self.query_one("#student-table-label", Label).update("No homework found for the specified student. \n Please check the name and class.")
+            self.query_one("#student-table-label", Label).update("No homework found for the specified student. \nPlease check the name and class.")
+            self.app.pop_screen()
         else:
             records = [(item['title'], item['date'], item['due'], item['status']) for item in result]
             table = self.query_one("#student-table", DataTable)
