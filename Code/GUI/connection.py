@@ -131,17 +131,56 @@ def show_homework(id):
     return results
 
 
-query = f'UPDATE `2023-10-02` SET title = "Don\'t do anything", class = "10C", description = "Nothing", due = "2023-10-09" WHERE teacher_id = 5003 AND title = "Don\'t write lol" '
-print(fetch_all(query))
+def class_homework_status(id):
+    results = []
+    class_ = fetch_all(f"SELECT class FROM teachers WHERE id = {id}")[0]['class']
+    query = f"SELECT id FROM students WHERE class = '{class_}'"
+    students = fetch_all(query)
+    total_students = len(students)
+    no_of_submissions,submission,percent_completed = 0,0,0
+    for student in students:
+        for date in date_range("2023-10-02"):
+            query = f"SELECT id{student['id']} FROM `{date}` WHERE class = '{class_}'"
+            result = fetch_all(query)
+            if result:
+                no_of_submissions = sum(1 for item in result if item[f'id{student["id"]}'] == 1)
+        submission += no_of_submissions
+    percent_completed = (submission / total_students) * 100 if total_students > 0 else 0
+    results.append({
+        'class': class_,
+        'total_students': total_students,
+        'no_of_submissions': submission,
+        'percent_completed': f"{percent_completed:.2f}%"
+    })
+    return results
 
+def individual_homework_status(name,class_):
+    results = []
+    query = f"SELECT id FROM students WHERE name = '{name}' AND class = '{class_}'"
+    student_id = fetch_all(query)
+    if not student_id:
+        return results
+    student_id = student_id[0]['id']
+    for date in date_range("2023-10-02"):
+        query = f"SELECT id{student_id} as status, title, due FROM `{date}` WHERE class = '{class_}'"
+        result = fetch_all(query)
+        if result:
+            for item in result:
+               item['date'] = date
+               item['name'] = name
+               item['status'] = "Completed" if item['status'] == 1 else "Pending"
+            results.extend(result)
+    return results
 
-
-
-
-
-
-
-
+''' 
+        table.add_columns("Class", "Total Students", "No. of Submissions", "Percent Completed")
+        data = [
+            ("10A", "30", "27", "90%"),
+            ("10B", "32", "29", "91%")
+        ]
+        for row in data:
+            table.add_row(*row)
+''' 
 if __name__ == "__main__":
     # Example usage
     # print("Pending Homework for ID 2001:")
@@ -164,4 +203,15 @@ if __name__ == "__main__":
     # show_homework = show_homework(5003)
     # for hw in show_homework:
     #     print(hw)
+
+    #Check class_homework_status function
+    # class_status = class_homework_status(5003)
+    # for status in class_status:
+    #     print(status)
+
+    #Check individual_homework_status function
+    individual_status = individual_homework_status("Sneha Patel", "10C")
+    for status in individual_status:
+        print(status)
+
     pass

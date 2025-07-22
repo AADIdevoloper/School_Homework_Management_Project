@@ -3,7 +3,7 @@ from textual.widgets import Label, Button, Input, DataTable, RadioSet, RadioButt
 from textual.containers import Vertical, Horizontal
 from textual.screen import Screen
 from textual.reactive import var
-from connection import add_homework, name, fetch_all, show_homework, execute_query
+from connection import add_homework, name, fetch_all, show_homework, execute_query, class_homework_status, individual_homework_status
 
 Add = {}
 Update = {}
@@ -53,10 +53,10 @@ class ViewEditScreen(Screen):
         )
 
     def on_mount(self) -> None:
-        global result
-        result = show_homework(self.app.ID)
-        if result:
-            records = [(item['index'], item['date'], item['title'], item['class'], item['description'], item['due'], name(item['teacher_id'])) for item in result]
+        global view
+        view = show_homework(self.app.ID)
+        if view:
+            records = [(item['index'], item['date'], item['title'], item['class'], item['description'], item['due'], name(item['teacher_id'])) for item in view]
             table = self.query_one("#hw-table", DataTable)
             table.add_columns("Sr. No.","Date", "Title", "Class", "Description", "Due", "Assigned by")
             for record in records:
@@ -160,15 +160,17 @@ class ClassStatusScreen(Screen):
         )
 
     def on_mount(self) -> None:
-        table = self.query_one("#class-table", DataTable)
-        table.add_columns("Class", "Total Students", "No. of Submissions", "Percent Completed")
-        data = [
-            ("10A", "30", "27", "90%"),
-            ("10B", "32", "29", "91%")
-        ]
-        for row in data:
-            table.add_row(*row)
-
+        class_status = class_homework_status(self.app.ID)
+        if class_status:
+            records = [(item['class'], item['total_students'], item['no_of_submissions'], item['percent_completed']) for item in class_status]
+            table = self.query_one("#class-table", DataTable)
+            table.add_columns("Class", "Total Students", "No. of Submissions", "Percent Completed")
+            for record in records:
+                table.add_row(*record)
+        else:
+            table = self.query_one("#class-table", DataTable)
+            table.add_columns("No homework found")
+            table.add_row("")
     def on_button_pressed(self, event: Button.Pressed) -> None:
         self.app.pop_screen()
 
@@ -185,6 +187,8 @@ class StudentStatusInputScreen(Screen):
         )
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
+        global result
+        result = individual_homework_status(name=self.query_one("#student-name", Input).value, class_=self.query_one("#student-class", Input).value)
         if event.button.id == "show-status":
             self.app.push_screen("student-status-table")
         elif event.button.id == "back-student-input":
@@ -195,19 +199,19 @@ class StudentStatusTableScreen(Screen):
         yield Vertical(
             Label("Homework Status for student_name", id="student-table-label"),
             DataTable(id="student-table"),
-            Label("Total homework: 5   Homework due: 1   Percent done: 80%", id="summary"),
             Button("Back", id="back-student-table")
         )
 
     def on_mount(self) -> None:
-        table = self.query_one("#student-table", DataTable)
-        table.add_columns("Title", "Date", "Due", "Status")
-        data = [
-            ("Map Work", "2025-07-01", "2025-07-20", "Completed"),
-            ("Climate", "2025-07-02", "2025-07-21", "Due")
-        ]
-        for row in data:
-            table.add_row(*row)
+        global result
+        if not result:
+            self.query_one("#student-table-label", Label).update("No homework found for the specified student. \n Please check the name and class.")
+        else:
+            records = [(item['title'], item['date'], item['due'], item['status']) for item in result]
+            table = self.query_one("#student-table", DataTable)
+            table.add_columns("Title", "Date", "Due", "Status")
+            for record in records:
+                table.add_row(*record)
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         self.app.pop_screen()
