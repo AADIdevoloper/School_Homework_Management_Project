@@ -103,7 +103,7 @@ class UpdateHomeworkScreen(Screen):
             for dict in result:
                 if dict['sr_no'] == srno_int:
                     class_ = fetch_all(f"SELECT class FROM students WHERE id = {self.app.ID}")[0]['class']
-                    query = f"UPDATE `{dict['date']}` SET id{self.app.ID} = 1 WHERE id{self.app.ID} = 0 AND class = '{class_}' AND title = '{dict['title']}'"
+                    query = f"UPDATE `{dict['date']}` SET id{self.app.ID} = 1 WHERE id{self.app.ID} = 0 AND class = '{class_}' AND title = '{dict['title']}' AND subject = '{dict['subject']}'"
                     execute_query(query)
                     self.query_one("#update-title", Label).update("Homework status updated successfully!")
                     updated = True

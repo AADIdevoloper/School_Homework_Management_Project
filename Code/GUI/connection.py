@@ -1,15 +1,31 @@
 #function to establish a connection to the database
 import mysql.connector
 from datetime import date, datetime, timedelta
+import os,platform
+
 def today():
     return datetime.now().strftime("%Y-%m-%d") 
 
-def connection(password="321@ssaP"):
+password,user='pass','root'
+
+def get_credentials_path():
+    folder = os.getcwd()
+    os.makedirs(folder, exist_ok=True)
+    return os.path.join(folder, 'Code\\GUI\\credentials.txt')
+
+try:
+    with open(get_credentials_path(), 'r') as file:
+        for line in file:
+            user, password = line.strip().split(':')
+except:
+    print("Look's like the text file storing credentials is missing or displaced. Please run setup.py")
+
+def connection(password=password,user=user):
     conn = mysql.connector.connect(
         host="localhost",
-        user="root",
+        user=user,
         password=password,
-        database="homework_db"
+        database="School_Management_Database"
     )
     return conn
 
