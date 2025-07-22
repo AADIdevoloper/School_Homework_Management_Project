@@ -12,7 +12,7 @@ def get_connection():
 def execute_query(query):
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute(query, multi=True)  # Use multi=True for multiple statements
+    cursor.execute(query, multi=True)
     conn.commit()
     cursor.close()
     conn.close()
@@ -162,6 +162,28 @@ sample_data= [
 ('10B','5008','Mathematics','Calculus Quiz','Solve calculus problems on page 60 of the textbook.','2023-10-22'),
 ('11C','5009','Science','Physics Project Presentation','Prepare a project on renewable energy sources.','2023-10-23'),
 ('12A','5010','English','Creative Writing Contest','Write a short story based on a given prompt.','2023-10-24');
+''',
+'''
+('8A', '5001', 'Mathematics', 'Functions Practice', 'Solve problems on linear and quadratic functions', '2023-10-25'),
+('9B', '5002', 'Science', 'Genetics Assignment', 'Complete the worksheet on Mendelian genetics', '2023-10-26'),
+('10C', '5003', 'English', 'Drama Scene Analysis', 'Analyze the scene from the assigned play', '2023-10-27'),
+('11A', '5004', 'Hindi', 'Character Sketch', 'Write a character sketch from the story', '2023-10-28'),
+('12B', '5005', 'Social Studies', 'UN Project', 'Prepare a report on United Nations objectives', '2023-10-29'),
+('8C', '5006', 'Marathi', 'Cultural Essay', 'Write an essay on a local festival', '2023-10-30'),
+('9A', '5007', 'Computer', 'Cybersecurity Basics', 'Prepare notes on types of cyber threats', '2023-10-31'),
+('10B', '5008', 'Mathematics', 'Logarithm Exercises', 'Solve problems on logarithmic functions', '2023-11-01'),
+('11C', '5009', 'Science', 'Human Digestive System', 'Draw and label the digestive system', '2023-11-02'),
+('12A', '5010', 'English', 'News Article Review', 'Summarize and critique a recent news article', '2023-11-03'),
+('8A', '5001', 'Mathematics', 'Area and Perimeter', 'Solve problems involving rectangles and circles', '2023-11-04'),
+('9B', '5002', 'Science', 'Water Conservation', 'Create a poster about saving water', '2023-11-05'),
+('10C', '5003', 'English', 'Interview Transcript', 'Write a fictional interview with an author', '2023-11-06'),
+('11A', '5004', 'Hindi', 'Dialogue Writing', 'Create a dialogue between two friends', '2023-11-07'),
+('12B', '5005', 'Social Studies', 'Indian Judiciary', 'Explain the structure of Indian courts', '2023-11-08'),
+('8C', '5006', 'Marathi', 'Book Reflection', 'Write your thoughts after reading a short story', '2023-11-09'),
+('9A', '5007', 'Computer', 'Flowchart Activity', 'Draw a flowchart for a basic login system', '2023-11-10'),
+('10B', '5008', 'Mathematics', 'Coordinate Geometry', 'Plot points and shapes on a graph', '2023-11-11'),
+('11C', '5009', 'Science', 'Light and Optics', 'Answer questions on reflection and refraction', '2023-11-12'),
+('12A', '5010', 'English', 'Satire Analysis', 'Analyze a satirical piece and explain its message', '2023-11-13');
 '''
 ]
 if __name__ == "__main__":
@@ -247,7 +269,6 @@ if __name__ == "__main__":
     '''
     execute_query(query)
 
-    # Step 4: Dynamic date-wise homework tables
     i = 0
     for date in date_range():
         student_query = "SELECT id FROM students"
@@ -265,19 +286,14 @@ if __name__ == "__main__":
         for sid in student_ids:
             columns += f",\n    id{sid} BOOLEAN DEFAULT FALSE"
 
-        query = f"""
-        CREATE TABLE IF NOT EXISTS `{date}` (
-        {columns}
-        );
+        create_query = f"""CREATE TABLE IF NOT EXISTS `{date}` ({columns});"""
+        insert_query = f"""INSERT INTO `{date}` (class, teacher_id, subject, title, description, due) VALUES {sample_data[i]};"""
 
-        INSERT INTO `{date}` (class, teacher_id, subject, title, description, due)
-        VALUES
-        {sample_data[i]};
-        """
-        execute_query(query)
+        execute_query(create_query)
+        execute_query(insert_query)
+
         i += 1
 
     print("Database and sample data setup complete!")
     
-print(len(date_range()))
 
