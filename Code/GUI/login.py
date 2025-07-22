@@ -53,7 +53,7 @@ class IDScreen(Screen):
         elif self.app.role == "Teacher":
             note = "Enter any number between 1 to 15"
         else:
-            note = "Press 0"
+            note = "ID for Principal is 0"
 
         yield Vertical(
             Label(f"Role selected: {self.app.role}"),

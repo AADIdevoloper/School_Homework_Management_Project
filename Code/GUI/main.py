@@ -1,6 +1,6 @@
 from textual.app import App
 from login import WelcomeScreen, LoginScreen, IDScreen, User, ID
-from connection import connection, close_connection, today, date_range
+from connection import connection, fetch_all, today, date_range, execute_query
 
 connection()
 
@@ -40,10 +40,8 @@ class HomeworkApp(App):
 if __name__ == "__main__":
 
     for date in date_range(today()):
-        cursor = connection.connection().cursor()
-        cursor.execute("SELECT id FROM students")
-        student_ids = [row[0] for row in cursor.fetchall()]
-        cursor.close()
+        query="SELECT id FROM students"
+        student_ids = [row['id'] for row in fetch_all(query)]
 
         # Build the CREATE TABLE query dynamically
         columns = """
@@ -63,10 +61,7 @@ if __name__ == "__main__":
     {columns}
     );
         """
-        # Execute the query to create the table
-        cursor = connection.connection().cursor()
-        cursor.execute(query)
-        cursor.close()
+        execute_query(query)
 
     import login
     result = HomeworkApp().run()
