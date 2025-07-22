@@ -28,7 +28,6 @@ def execute_query(query, params=None):
         else:
             cursor.execute(query)
         conn.commit()
-        print("Query executed successfully.")
     except mysql.connector.Error as err:
         print(f"Error: {err}")
     finally:
@@ -48,7 +47,6 @@ def fetch_all(query, params=None):
         if results:
             return results
         else:
-            print("No results found.")
             return []
     except mysql.connector.Error as err:
         print(f"Error: {err}")
@@ -77,11 +75,10 @@ def name(ID):
         else:
             return "Unknown"
     
-
 def pendinghw(id):
     results = []
     class_ = fetch_all(f"SELECT class FROM students WHERE id = {id}")[0]['class']
-    for date in date_range("2023-10-01"):
+    for date in date_range(today()):
         query = f"SELECT subject,title,description,due FROM `{date}` WHERE id{id} = 0 AND class = '{class_}'"
         result = fetch_all(query)
         if result:
@@ -90,13 +87,11 @@ def pendinghw(id):
             results.extend(result)
     return results
 
-
-
 def update_homework_status(id, sr_no):
     results = []
     class_ = fetch_all(f"SELECT class FROM students WHERE id = {id}")[0]['class']
     num1=0
-    for date in date_range("2023-10-01"):
+    for date in date_range(today()):
         query = f"SELECT subject,title,due,class FROM `{date}` WHERE id{id} = 0 AND class = '{class_}'"
         result = fetch_all(query)
         if result:
@@ -117,7 +112,7 @@ def show_homework(id):
     results = []
     subject = fetch_all(f"SELECT subject FROM teachers WHERE id = {id}")[0]['subject']
     num2=0
-    for date in date_range("2023-10-02"):
+    for date in date_range(today()):
         query = f"SELECT title,description,due,sr_no,class FROM `{date}` WHERE teacher_id = {id}"
         result = fetch_all(query)
         if result:
@@ -139,7 +134,7 @@ def class_homework_status(id):
     total_students = len(students)
     no_of_submissions,submission,percent_completed = 0,0,0
     for student in students:
-        for date in date_range("2023-10-02"):
+        for date in date_range(today()):
             query = f"SELECT id{student['id']} FROM `{date}` WHERE class = '{class_}'"
             result = fetch_all(query)
             if result:
@@ -161,7 +156,7 @@ def individual_homework_status(name,class_):
     if not student_id:
         return results
     student_id = student_id[0]['id']
-    for date in date_range("2023-10-02"):
+    for date in date_range(today()):
         query = f"SELECT id{student_id} as status, title, due FROM `{date}` WHERE class = '{class_}'"
         result = fetch_all(query)
         if result:
@@ -176,7 +171,7 @@ def show_students():
     results = fetch_all("SELECT id, name, DOB, class, address FROM students")
     completed_hws=0
     for result in results:
-        for date in date_range("2023-10-02"):
+        for date in date_range(today()):
             try:
                 query = f"SELECT id{result['id']} FROM `{date}` WHERE class = '{result['class']}'"
                 hw_result = fetch_all(query)[0][f'id{result["id"]}']
@@ -193,7 +188,7 @@ def show_teachers():
     results = fetch_all("SELECT id, name, subject, class, address FROM teachers")
     assigned_hws=0
     for result in results:
-        for date in date_range("2023-10-02"):
+        for date in date_range(today()):
             query = f"SELECT teacher_id FROM `{date}` WHERE teacher_id = {result['id']}"
             hw_result = fetch_all(query)
             if hw_result:
@@ -237,7 +232,7 @@ def all_teacher_status():
     total_hw = 0
     teacher_ids = fetch_all("SELECT id FROM teachers")
     for teacher_id in teacher_ids:
-        for date in date_range("2023-10-02"):
+        for date in date_range(today()):
             query = f"SELECT COUNT(*) as total_hw FROM `{date}` WHERE teacher_id = {teacher_id['id']}"
             hw = fetch_all(query)[0]['total_hw']
             total_hw += hw
@@ -249,58 +244,3 @@ def all_teacher_status():
                                'name': name(teacher_id['id'])})
     return results
 
-
-
-if __name__ == "__main__":
-    # Example usage
-    # print("Pending Homework for ID 2001:")
-    # pending_homework = pendinghw(2001)
-    # for hw in pending_homework:
-    #     print(hw)
-
-    # print("\nUpdating Homework Status for ID 2001, Sr. No. 1:")
-    # updated_results = update_homework_status(2001, 1)
-    # for result in updated_results:
-    #     print(result)
-
-    # print("\nAdding Homework for Teacher ID 5001:")
-    # add_homework(date='2023-10-02', teacher_id=5001, title='Math Assignment', class_='10A', description='Solve exercises 1 to 10', due='2023-10-09')
-    # print("Homework added successfully.")
-
-    # print("\nName of ID 2001:", name(2001))
-
-    #Check show_homework function
-    # show_homework = show_homework(5003)
-    # for hw in show_homework:
-    #     print(hw)
-
-    #Check class_homework_status function
-    # class_status = class_homework_status(5003)
-    # for status in class_status:
-    #     print(status)
-
-    #Check individual_homework_status function
-    # individual_status = individual_homework_status("Sneha Patel", "10C")
-    # for status in individual_status:
-    #     print(status)
-
-    #Check show_students function
-    # students = show_students()
-    # for student in students:
-    #     print(student)
-
-    #Check add_student function
-    # add_student('2021', 'John Doe', '2005-05-15', '10A', '123 Main St')
-
-    #Check update_student function
-    # update_student('2021', 'John Doe', '2005-05-15', '10A', '456 Elm St')
-    
-    #Check all_class_status function
-    # all_status = all_class_status()
-    # for status in all_status:
-    #     print(status)
-    
-    #Check all_teacher_status function
-    all_teacher_status = all_teacher_status()
-    for status in all_teacher_status:
-        print(status)

@@ -71,7 +71,7 @@ class UpdateHomeworkScreen(Screen):
             DataTable(id="pending-table"),
             Input(placeholder="Enter Sr. No. of completed homework", id="srno-input"),
             Button("Update", id="update-btn", variant="primary"),
-            Button("Back", id="back-update"),
+            Button("Back", id="back-update", variant="warning"),
             id="update-container"
         )
 

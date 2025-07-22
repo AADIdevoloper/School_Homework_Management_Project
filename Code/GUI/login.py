@@ -11,8 +11,8 @@ ID = None
 class WelcomeScreen(Screen):
     def compose(self) -> ComposeResult:
         yield Vertical(
-            Label("Class XII Project: \nHomework Management System\n", id="title"),
-            Label("Developed by Shivam Gholap and Aadi Nigam", id="authors"),
+            Label("Class XII Investigatory Project:\nHomework Management System\n", id="title"),
+            Label("Developed by Shivam Gholap and Aadi Nigam\n ", id="authors"),
             Button("Proceed", id="proceed", variant="success"),
             id="welcome-container"
         )

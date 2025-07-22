@@ -3,7 +3,7 @@ from textual.widgets import Label, Button, Input, DataTable, RadioSet, RadioButt
 from textual.containers import Vertical, Horizontal
 from textual.screen import Screen
 from textual.reactive import var
-from connection import add_homework, name, fetch_all, show_homework, execute_query, class_homework_status, individual_homework_status
+from connection import add_homework, name, fetch_all, show_homework, execute_query, class_homework_status, individual_homework_status, today
 
 Add = {}
 Update = {}
@@ -44,10 +44,10 @@ class ViewEditScreen(Screen):
             Label(f'All {fetch_all(f"SELECT subject FROM teachers WHERE id = {self.app.ID}")[0]["subject"]} homeworks', id="subject-label"),
             DataTable(id="hw-table"),
             Horizontal(
-                Button("Add", id="add-btn"),
-                Button("Update", id="update-btn"),
-                Button("Delete", id="delete-btn"),
-                Button("Back", id="back-btn"),
+                Button("Add", id="add-btn", variant="success"),
+                Button("Update", id="update-btn", variant="primary"),
+                Button("Delete", id="delete-btn",variant="error"),
+                Button("Back", id="back-btn",variant="warning"),
                 id="btn-row"
             ),
             id="view-edit-container"
@@ -99,7 +99,7 @@ class AddHomeworkScreen(Screen):
                 "description": self.query_one("#add-desc", Input).value,
                 "due": self.query_one("#add-due", Input).value
             }
-            add_homework(date='2023-10-02', teacher_id=self.app.ID, title=Add['title'], class_=Add['class'], description=Add['description'], due=Add['due'])
+            add_homework(date=today(), teacher_id=self.app.ID, title=Add['title'], class_=Add['class'], description=Add['description'], due=Add['due'])
             self.query_one("#add-label", Label).update("Homework added successfully!")
             self.app.pop_screen()
         elif event.button.id == "back-add":

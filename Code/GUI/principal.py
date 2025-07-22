@@ -3,7 +3,7 @@ from textual.widgets import Label, Button, Input, DataTable, RadioSet, RadioButt
 from textual.containers import Vertical, Horizontal
 from textual.screen import Screen
 from textual.reactive import var
-from connection import all_class_status, show_students, show_teachers, name, execute_query, fetch_all, add_student, add_teacher, update_student, update_teacher, class_homework_status, all_teacher_status
+from connection import all_class_status, show_students, show_teachers, name, execute_query, fetch_all, add_student, add_teacher, update_student, update_teacher, all_teacher_status
 
 Add = {}
 Update = {}
