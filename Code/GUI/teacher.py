@@ -169,6 +169,7 @@ class ClassStatusScreen(Screen):
             table = self.query_one("#class-table", DataTable)
             table.add_columns("No homework found")
             table.add_row("")
+            
     def on_button_pressed(self, event: Button.Pressed) -> None:
         self.app.pop_screen()
 

@@ -232,6 +232,22 @@ def all_class_status():
             results.append(class_status[0])
     return results
 
+def all_teacher_status():
+    results = []
+    total_hw = 0
+    teacher_ids = fetch_all("SELECT id FROM teachers")
+    for teacher_id in teacher_ids:
+        for date in date_range("2023-10-02"):
+            query = f"SELECT COUNT(*) as total_hw FROM `{date}` WHERE teacher_id = {teacher_id['id']}"
+            hw = fetch_all(query)[0]['total_hw']
+            total_hw += hw
+        class_status = class_homework_status(teacher_id['id'])
+        if class_status:
+            results.append({'percent_completed': class_status[0]['percent_completed'],
+                             'teacher_id': teacher_id['id'],
+                               'total_hw': total_hw,
+                               'name': name(teacher_id['id'])})
+    return results
 
 if __name__ == "__main__":
     # Example usage
@@ -281,3 +297,8 @@ if __name__ == "__main__":
     # all_status = all_class_status()
     # for status in all_status:
     #     print(status)
+    
+    #Check all_teacher_status function
+    all_teacher_status = all_teacher_status()
+    for status in all_teacher_status:
+        print(status)

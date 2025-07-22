@@ -3,7 +3,7 @@ from textual.widgets import Label, Button, Input, DataTable, RadioSet, RadioButt
 from textual.containers import Vertical, Horizontal
 from textual.screen import Screen
 from textual.reactive import var
-from connection import all_class_status, show_students, show_teachers, name, execute_query, fetch_all, add_student, add_teacher, update_student, update_teacher
+from connection import all_class_status, show_students, show_teachers, name, execute_query, fetch_all, add_student, add_teacher, update_student, update_teacher, class_homework_status, all_teacher_status
 
 Add = {}
 Update = {}
@@ -177,9 +177,17 @@ class TeacherHWStatusScreen(Screen):
         )
 
     def on_mount(self) -> None:
-        table = self.query_one("#teacher-table", DataTable)
-        table.add_columns("Name", "Subject", "HWs Assigned", "Percent Completed")
-        table.add_row("Mr. Verma", "Math", "6", "85%")
+        teacher_status = all_teacher_status()
+        if teacher_status:
+            records = [(item['name'], item['total_hw'], item['percent_completed']) for item in teacher_status]
+            table = self.query_one("#teacher-table", DataTable)
+            table.add_columns("Name", "Total HW Assigned", "Percent Completed by Students")
+            for status in records:
+                table.add_row(*status)
+        else:
+            table = self.query_one("#teacher-table", DataTable)
+            table.add_columns("No teacher status found")
+            table.add_row("")
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         self.app.pop_screen()
