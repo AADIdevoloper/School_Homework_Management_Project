@@ -143,11 +143,11 @@ class UpdateHomeworkScreen(Screen):
                     query = f"""UPDATE `{dict['date']}` SET title = \"{Update['title'] if Update['title'] else dict['title']}\",
                     class = \"{Update['class'] if Update['class'] else dict['class']}\",
                     description = \"{Update['description'] if Update['description'] else dict['description']}\",
-                    due = \"{Update['due'] if Update['due'] else dict['due']}\" WHERE sr_no = {dict['sr_no']} AND teacher_id = {self.app.ID}"""
+                    due = \"{Update['due'] if Update['due'] else dict['due']}\" WHERE sr_no = {dict['sr_no']}"""
                     execute_query(query)
                     self.query_one("#update-label", Label).update("Homework status updated successfully!")
                     updated = True
-                    break
+                    break  
             if not updated:
                 self.query_one("#update-label", Label).update("No matching homework found for the entered Sr. No.")
             self.set_timer(2, self.app.pop_screen)
