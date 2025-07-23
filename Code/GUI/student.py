@@ -13,10 +13,10 @@ class StudentHome(Screen):
 
     def compose(self) -> ComposeResult:
         yield Vertical(
-            Label(f"hello, {name(self.app.ID)}!", id="greeting"),
+            Label(f"Hello, {name(self.app.ID)}!", id="greeting"),
             RadioSet(
-                RadioButton("view pending homework", id="view", value=True),
-                RadioButton("update homework status", id="update"),
+                RadioButton("View Pending Homework", id="view", value=True),
+                RadioButton("Update Homework Status", id="update"),
                 id="student-options"
             ),
             Horizontal(
@@ -42,7 +42,7 @@ class StudentHome(Screen):
 class ViewHomeworkScreen(Screen):
     def compose(self) -> ComposeResult:
         yield Vertical(
-            Label("student_name classXX", id="title"),
+            Label(f"{name(self.app.ID)}", id="title"),
             DataTable(id="homework-table"),
             Button("Back", id="back-view"),
             id="view-container"
