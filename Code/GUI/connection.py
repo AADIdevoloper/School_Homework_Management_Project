@@ -1,14 +1,15 @@
-#function to establish a connection to the database
 import mysql.connector
 from datetime import date, datetime, timedelta
 import os,platform
 
 def today():
+    """Returns today's date in YYYY-MM-DD format."""
     return datetime.now().strftime("%Y-%m-%d") 
 
 password,user='pass','root'
 
 def get_credentials_path():
+    """Returns the path to the credentials.txt file used for DB login."""
     folder = os.getcwd()
     os.makedirs(folder, exist_ok=True)
     return os.path.join(folder, 'Code\\GUI\\credentials.txt')
@@ -21,6 +22,7 @@ except:
     print("Look's like the text file storing credentials is missing or displaced. Please run setup.py")
 
 def connection(password=password,user=user):
+    """Establishes and returns a connection to the MySQL database."""
     conn = mysql.connector.connect(
         host="localhost",
         user=user,
@@ -31,11 +33,13 @@ def connection(password=password,user=user):
 
 #function to close the connection
 def close_connection(conn):
+    """Closes the given database connection if it's open."""
     if conn.is_connected():
         conn.close()
 
 #function to execute queries but not fetch results
 def execute_query(query, params=None):
+    """Executes a write/query statement (INSERT, UPDATE, DELETE) on the DB."""
     conn = connection()
     cursor = conn.cursor()
     try:
@@ -52,6 +56,7 @@ def execute_query(query, params=None):
 
 #function to execute queries and fetch results
 def fetch_all(query, params=None):
+    """Executes a SELECT query and returns all results as a list of dicts."""
     conn = connection()
     cursor = conn.cursor(dictionary=True)
     try:
@@ -72,6 +77,7 @@ def fetch_all(query, params=None):
         close_connection(conn)
 
 def date_range(date=today()):
+    """Returns a list of 7 dates from today backward in YYYY-MM-DD format."""
     dates=[]
     # Generates a list of dates that are all 7 days from today to 7 days back
     date_obj = datetime.strptime(date, "%Y-%m-%d")
@@ -80,7 +86,7 @@ def date_range(date=today()):
     return dates
 
 def name(ID):
-    # Fetches the name of the student or teacher based on their ID
+    """Fetches the name of a student or teacher based on their ID."""
     result = fetch_all(f"SELECT name FROM students WHERE id = {ID}")
     if result:
         return result[0]['name']
@@ -92,6 +98,7 @@ def name(ID):
             return "Unknown"
     
 def pendinghw(id):
+    """Fetches all pending homeworks for a student based on their ID."""
     results = []
     class_ = fetch_all(f"SELECT class FROM students WHERE id = {id}")[0]['class']
     for date in date_range(today()):
@@ -104,6 +111,7 @@ def pendinghw(id):
     return results
 
 def update_homework_status(id, sr_no):
+    """Prepares the list of homeworks eligible for status update based on student ID."""
     results = []
     class_ = fetch_all(f"SELECT class FROM students WHERE id = {id}")[0]['class']
     num1=0
@@ -119,12 +127,14 @@ def update_homework_status(id, sr_no):
     return results
 
 def add_homework(date,teacher_id, title, class_, description, due):
+    """Adds a new homework to the specified date's table."""
     subject = fetch_all(f"SELECT subject FROM teachers WHERE id = {teacher_id}")[0]['subject']
     query = f"INSERT INTO `{date}` (teacher_id, title, class, description, due, subject) VALUES (%s, %s, %s, %s, %s, %s)"
     params = (teacher_id, title, class_, description, due, subject)
     execute_query(query, params)
 
 def show_homework(id):
+    """Returns all homeworks assigned by a teacher given their ID."""
     results = []
     subject = fetch_all(f"SELECT subject FROM teachers WHERE id = {id}")[0]['subject']
     num2=0
@@ -141,8 +151,8 @@ def show_homework(id):
             results.extend(result)
     return results
 
-
 def class_homework_status(id):
+    """Calculates homework completion percentage for the class handled by a teacher."""
     results = []
     class_ = fetch_all(f"SELECT class FROM teachers WHERE id = {id}")[0]['class']
     query = f"SELECT id FROM students WHERE class = '{class_}'"
@@ -166,6 +176,7 @@ def class_homework_status(id):
     return results
 
 def individual_homework_status(name,class_):
+    """Fetches all homeworks and their completion status for a given student."""
     results = []
     query = f"SELECT id FROM students WHERE name = '{name}' AND class = '{class_}'"
     student_id = fetch_all(query)
@@ -184,6 +195,7 @@ def individual_homework_status(name,class_):
     return results
 
 def show_students():
+    """Returns list of all students with completed homework stats."""
     results = fetch_all("SELECT id, name, DOB, class, address FROM students")
     completed_hws=0
     for result in results:
@@ -201,6 +213,7 @@ def show_students():
     return results
 
 def show_teachers():
+    """Returns list of teachers with homework assignment stats."""
     results = fetch_all("SELECT id, name, subject, class, address FROM teachers")
     assigned_hws=0
     for result in results:
@@ -215,26 +228,31 @@ def show_teachers():
     return results
 
 def add_student(id, name, dob, class_, address):
+    """Adds a student record to the students table."""
     query = "INSERT INTO students (id, name, DOB, class, address) VALUES (%s, %s, %s, %s, %s)"
     params = (id, name, dob, class_, address)
     execute_query(query, params)
 
 def add_teacher(id, name, subject, class_, address):
+    """Adds a teacher record to the teachers table."""
     query = "INSERT INTO teachers (id, name, subject, class, address) VALUES (%s, %s, %s, %s, %s)"
     params = (id, name, subject, class_, address)
     execute_query(query, params)
     
 def update_student(id, name, dob, class_, address):
+    """Updates a student record in the students table."""
     query = "UPDATE students SET name = %s, DOB = %s, class = %s, address = %s WHERE id = %s"
     params = (name, dob, class_, address, id)
     execute_query(query, params)
 
 def update_teacher(id, name, subject, class_, address):
+    """Updates a teacher record in the teachers table."""
     query = "UPDATE teachers SET name = %s, subject = %s, class = %s, address = %s WHERE id = %s"
     params = (name, subject, class_, address, id)
     execute_query(query, params)
 
 def all_class_status():
+    """Returns homework completion stats for all classes handled by teachers."""
     results = []
     teacher_ids = fetch_all("SELECT id FROM teachers")
     for teacher_id in teacher_ids:
@@ -244,6 +262,7 @@ def all_class_status():
     return results
 
 def all_teacher_status():
+    """Returns overall homework stats for all teachers."""
     results = []
     total_hw = 0
     teacher_ids = fetch_all("SELECT id FROM teachers")
@@ -259,4 +278,3 @@ def all_teacher_status():
                                'total_hw': total_hw,
                                'name': name(teacher_id['id'])})
     return results
-

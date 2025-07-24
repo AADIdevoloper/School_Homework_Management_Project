@@ -1,7 +1,8 @@
 from connection import date_range
-import os,platform,mysql.connector
+import os, mysql.connector
 
 def get_connection():
+    """Establish and return a connection to the School_Management_Database."""
     return mysql.connector.connect(
         host="localhost",
         user=username,
@@ -10,6 +11,7 @@ def get_connection():
     )
 
 def execute_query(query):
+    """Execute a given SQL query with optional multi-statement support."""
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute(query, multi=True)
@@ -18,6 +20,7 @@ def execute_query(query):
     conn.close()
 
 def fetch_all(query):
+    """Execute a SELECT query and return all results as a list of dictionaries."""
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
     cursor.execute(query)
@@ -27,6 +30,7 @@ def fetch_all(query):
     return result
 
 def get_credentials_path():
+    """Return the full path for the credentials.txt file in the Code/GUI folder."""
     folder = os.getcwd()
     os.makedirs(folder, exist_ok=True)
     return os.path.join(folder, 'Code\\GUI\\credentials.txt')
@@ -186,26 +190,29 @@ sample_data= [
 ('12A', '5010', 'English', 'Satire Analysis', 'Analyze a satirical piece and explain its message', '2023-11-13');
 '''
 ]
+
 if __name__ == "__main__":
 
     print("\nWelcome to School Homework Management Setup!\nThis will setup some sample tables in a database named 'School_Management_Database' for testing the system.\n")
 
+    # Prompt for credentials
     username = input("Username: ")
     password = input("Password: ")
 
+    # Save credentials
     with open(get_credentials_path(), 'w') as file:
         file.write(f'{username}:{password}\n')
 
     print("Credentials saved successfully.\nCreating database and sample data...\n")
 
-    # Step 1: Create DB
+    # Create database
     conn = mysql.connector.connect(host="localhost", user=username, password=password)
     cursor = conn.cursor()
     cursor.execute("CREATE DATABASE IF NOT EXISTS School_Management_Database;")
     conn.commit()
     conn.close()
 
-    # Step 2: Create students table
+    # Create students table
     query = '''
     CREATE TABLE IF NOT EXISTS students (
         id INT PRIMARY KEY,
@@ -242,7 +249,7 @@ if __name__ == "__main__":
     '''
     execute_query(query)
 
-    # Step 3: Create teachers table
+    # Create teachers table
     query = '''
     CREATE TABLE IF NOT EXISTS teachers (
         id VARCHAR(50) PRIMARY KEY,
@@ -269,6 +276,7 @@ if __name__ == "__main__":
     '''
     execute_query(query)
 
+    # Create and populate daily homework tables
     i = 0
     for date in date_range():
         student_query = "SELECT id FROM students"
@@ -295,5 +303,3 @@ if __name__ == "__main__":
         i += 1
 
     print("Database and sample data setup complete!")
-    
-

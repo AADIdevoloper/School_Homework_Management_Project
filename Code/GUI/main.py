@@ -32,6 +32,7 @@ class HomeworkApp(App):
     role: str = "Student"
 
     def on_mount(self) -> None:
+        """Mounts the welcome, login, and ID screens on app start."""
         self.install_screen(WelcomeScreen(), name="welcome")
         self.install_screen(LoginScreen(), name="login")
         self.install_screen(IDScreen(), name="id")
@@ -39,6 +40,7 @@ class HomeworkApp(App):
 
 if __name__ == "__main__":
 
+    # Ensure daily homework table exists for each student
     for date in date_range(today()):
         query="SELECT id FROM students"
         student_ids = [row['id'] for row in fetch_all(query)]

@@ -12,6 +12,7 @@ class StudentHome(Screen):
     selected_option = var("view")
 
     def compose(self) -> ComposeResult:
+        """Composes the home screen with greeting and options."""
         yield Vertical(
             Label(f"Hello, {name(self.app.ID)}!", id="greeting"),
             RadioSet(
@@ -28,9 +29,11 @@ class StudentHome(Screen):
         )
 
     def on_radio_set_changed(self, event: RadioSet.Changed) -> None:
+        """Updates the selected option when radio button changes."""
         self.selected_option = event.pressed.id
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
+        """Navigates to the selected option's screen or exits."""
         if event.button.id == "proceed-btn":
             if self.selected_option == "view":
                 self.app.push_screen("view")
@@ -41,6 +44,7 @@ class StudentHome(Screen):
 
 class ViewHomeworkScreen(Screen):
     def compose(self) -> ComposeResult:
+        """Displays student's pending homework in a table."""
         yield Vertical(
             Label(f"{name(self.app.ID)}", id="title"),
             DataTable(id="homework-table"),
@@ -49,6 +53,7 @@ class ViewHomeworkScreen(Screen):
         )
 
     def on_mount(self) -> None:
+        """Loads and populates pending homework data."""
         result = pendinghw(self.app.ID)
         if result:
             records = [(item['date'], item['subject'], item['title'], item['description'], item['due']) for item in result]
@@ -62,10 +67,12 @@ class ViewHomeworkScreen(Screen):
             table.add_row("")
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
+        """Returns to the student home screen."""
         self.app.pop_screen()
 
 class UpdateHomeworkScreen(Screen):
     def compose(self) -> ComposeResult:
+        """Displays pending homework and input to update status."""
         yield Vertical(
             Label("Update Homework Status", id="update-title"),
             DataTable(id="pending-table"),
@@ -75,8 +82,8 @@ class UpdateHomeworkScreen(Screen):
             id="update-container"
         )
 
-
     def on_mount(self) -> None:
+        """Loads homework to update status for current week."""
         global result
         result = update_homework_status(id=self.app.ID, sr_no=completed_homework_srno)
         if result:
@@ -91,6 +98,7 @@ class UpdateHomeworkScreen(Screen):
             table.add_row("")
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
+        """Processes homework status update on user input."""
         global completed_homework_srno
         if event.button.id == "update-btn":
             completed_homework_srno = self.query_one("#srno-input", Input).value
@@ -113,7 +121,6 @@ class UpdateHomeworkScreen(Screen):
             self.set_timer(2, self.app.pop_screen)
         elif event.button.id == "back-update":
             self.app.pop_screen()
-
 
 class StudentApp(App):
     CSS = """
@@ -143,16 +150,19 @@ class StudentApp(App):
     }"""
 
     def __init__(self, user, ID):
+        """Initializes the StudentApp with user role and ID."""
         super().__init__()
         self.user = user
         self.ID = ID
 
     def on_mount(self) -> None:
+        """Sets up and displays the student home screen."""
         self.install_screen(StudentHome(), name="home")
         self.install_screen(ViewHomeworkScreen(), name="view")
         self.install_screen(UpdateHomeworkScreen(), name="update")
         self.push_screen("home")
 
 def run_student_app(user, ID):
+    """Runs the student Textual app."""
     app = StudentApp(user, ID)
     app.run()

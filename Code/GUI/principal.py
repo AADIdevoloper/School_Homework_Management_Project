@@ -12,6 +12,7 @@ class PrincipalHome(Screen):
     selected_option = var("edit")
 
     def compose(self) -> ComposeResult:
+        """Composes the principal's home screen with navigation options."""
         yield Vertical(
             Label("Hello Principal!"),
             RadioSet(
@@ -26,9 +27,11 @@ class PrincipalHome(Screen):
         )
 
     def on_radio_set_changed(self, event: RadioSet.Changed) -> None:
+        """Updates the selected radio option when changed."""
         self.selected_option = event.pressed.id
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
+        """Handles Proceed and Exit button actions based on selection."""
         if event.button.id == "exit-btn":
             self.app.exit()
         elif self.selected_option == "edit":
@@ -40,6 +43,7 @@ class PrincipalHome(Screen):
 
 class EditScreen(Screen):
     def compose(self) -> ComposeResult:
+        """Displays tables of all students and teachers with action buttons."""
         yield Vertical(
             Label("All Students"),
             DataTable(id="students-table"),
@@ -54,6 +58,7 @@ class EditScreen(Screen):
         )
 
     def on_mount(self) -> None:
+        """Fetches and loads student and teacher records into tables."""
         global students, teachers
         students = show_students()
         st_table = self.query_one("#students-table", DataTable)
@@ -68,6 +73,7 @@ class EditScreen(Screen):
             t_table.add_row(teacher['id'], teacher['name'], teacher['subject'], teacher['class'], teacher['assigned_hw'], teacher['overall_percent'], teacher['address'])
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
+        """Handles Add, Update, Delete, and Back button actions."""
         if event.button.id == "add-btn":
             self.app.push_screen(AddScreen())
         elif event.button.id == "update-btn":
@@ -79,6 +85,7 @@ class EditScreen(Screen):
 
 class AddScreen(Screen):
     def compose(self) -> ComposeResult:
+        """UI to add a new student or teacher."""
         yield Vertical(
             Label("Add Student or Teacher"),
             Label("ID should start with 2 for Student and 5 for Teacher",id="error-message"),
@@ -94,6 +101,7 @@ class AddScreen(Screen):
         )
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
+        """Validates and adds new entry, or shows error."""
         global Add
         if event.button.id == "add-final":
             Add = {
@@ -115,6 +123,7 @@ class AddScreen(Screen):
 
 class UpdateScreen(Screen):
     def compose(self) -> ComposeResult:
+        """UI to update existing student or teacher."""
         yield Vertical(
             Label("Update Student or Teacher"),
             Label("ID should start with 2 for Student and 5 for Teacher", id="error-message"),
@@ -130,6 +139,7 @@ class UpdateScreen(Screen):
         )
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
+        """Processes the update request based on ID format."""
         global Update
         if event.button.id == "update-final":
             Update = {
@@ -150,6 +160,7 @@ class UpdateScreen(Screen):
 
 class DeleteScreen(Screen):
     def compose(self) -> ComposeResult:
+        """UI for deleting a student or teacher by ID."""
         yield Vertical(
             Label("Delete Student or Teacher"),
             Label("ID should start with 2 for Student and 5 for Teacher", id="error-message"),
@@ -161,6 +172,7 @@ class DeleteScreen(Screen):
         )
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
+        """Deletes the record if ID prefix is valid."""
         if event.button.id == "delete-final":
             id_to_delete = self.query_one("#id", Input).value
             if str(id_to_delete).startswith("5"):
@@ -170,8 +182,10 @@ class DeleteScreen(Screen):
             else:
                 self.query_one("#error-message", Label).update("Invalid ID: ID should start with 2 for Student and 5 for Teacher")
         self.app.pop_screen()
+
 class ClassHWStatusScreen(Screen):
     def compose(self) -> ComposeResult:
+        """Displays class-wise homework submission status."""
         yield Vertical(
             Label("HW Status - Class"),
             DataTable(id="class-table"),
@@ -179,6 +193,7 @@ class ClassHWStatusScreen(Screen):
         )
 
     def on_mount(self) -> None:
+        """Loads homework statistics for each class."""
         class_status = all_class_status()
         if class_status:
             records = [(item['class'], item['total_students'], item['no_of_submissions'], item['percent_completed']) for item in class_status]
@@ -190,11 +205,14 @@ class ClassHWStatusScreen(Screen):
             table = self.query_one("#class-table", DataTable)
             table.add_columns("No class status found")
             table.add_row("")
+
     def on_button_pressed(self, event: Button.Pressed) -> None:
+        """Navigates back from class status screen."""
         self.app.pop_screen()
 
 class TeacherHWStatusScreen(Screen):
     def compose(self) -> ComposeResult:
+        """Displays teacher-wise homework assignment completion."""
         yield Vertical(
             Label("HW Status - Teacher"),
             DataTable(id="teacher-table"),
@@ -202,6 +220,7 @@ class TeacherHWStatusScreen(Screen):
         )
 
     def on_mount(self) -> None:
+        """Loads teacher homework statistics."""
         teacher_status = all_teacher_status()
         if teacher_status:
             records = [(item['name'], item['total_hw'], item['percent_completed']) for item in teacher_status]
@@ -215,17 +234,21 @@ class TeacherHWStatusScreen(Screen):
             table.add_row("")
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
+        """Navigates back from teacher status screen."""
         self.app.pop_screen()
 
 class PrincipalApp(App):
     def __init__(self, user, ID):
+        """Initialize the Principal application with user and ID."""
         super().__init__()
         self.user = user
         self.ID = ID
 
     def on_mount(self) -> None:
+        """Launches the initial principal home screen."""
         self.push_screen(PrincipalHome())
 
 def run_principal_app(user, ID):
+    """Starts the principal app."""
     app = PrincipalApp(user, ID)
     app.run()

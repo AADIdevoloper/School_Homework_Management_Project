@@ -12,12 +12,13 @@ class TeacherHome(Screen):
     selected_option = var("view_edit")
 
     def compose(self) -> ComposeResult:
+        """Composes the home screen UI for the teacher."""
         yield Vertical(
             Label(f"Hello {name(self.app.ID)}!", id="teacher-label"),
             RadioSet(
-                RadioButton("View or edit homeworks", id="view_edit", value=True),
-                RadioButton("View class HW status", id="class_status"),
-                RadioButton("View individual student HW status", id="student_status"),
+                RadioButton("View or Edit homeworks", id="view_edit", value=True),
+                RadioButton("View Class HW status", id="class_status"),
+                RadioButton("View Individual Student HW status", id="student_status"),
                 id="teacher-options"
             ),
             Horizontal(
@@ -28,9 +29,11 @@ class TeacherHome(Screen):
         )
 
     def on_radio_set_changed(self, event: RadioSet.Changed) -> None:
+        """Updates the selected option based on user input."""
         self.selected_option = event.pressed.id
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
+        """Navigates to the selected screen or exits the app."""
         if event.button.id == "proceed":
             self.app.push_screen(self.selected_option)
         elif event.button.id == "exit":
@@ -40,6 +43,7 @@ class ViewEditScreen(Screen):
     mode = var("")
 
     def compose(self) -> ComposeResult:
+        """Displays homework table with Add, Update, Delete options."""
         yield Vertical(
             Label(f'All {fetch_all(f"SELECT subject FROM teachers WHERE id = {self.app.ID}")[0]["subject"]} homeworks', id="subject-label"),
             DataTable(id="hw-table"),
@@ -54,6 +58,7 @@ class ViewEditScreen(Screen):
         )
 
     def on_mount(self) -> None:
+        """Loads homework records assigned by the teacher."""
         global view
         view = show_homework(self.app.ID)
         if view:
@@ -68,6 +73,7 @@ class ViewEditScreen(Screen):
             table.add_row("")
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
+        """Handles Add, Update, Delete, and Back actions."""
         if event.button.id == "add-btn":
             self.app.push_screen("add_hw")
         elif event.button.id == "update-btn":
@@ -76,8 +82,10 @@ class ViewEditScreen(Screen):
             self.app.push_screen("delete_hw")
         elif event.button.id == "back-btn":
             self.app.pop_screen()
+
 class AddHomeworkScreen(Screen):
     def compose(self) -> ComposeResult:
+        """Displays the form for adding new homework."""
         yield Vertical(
             Label("Add Homework", id="add-label"),
             Input(placeholder="Title", id="add-title"),
@@ -91,6 +99,7 @@ class AddHomeworkScreen(Screen):
         )
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
+        """Handles submission of new homework details."""
         global Add
         if event.button.id == "submit-add":
             Add = {
@@ -107,6 +116,7 @@ class AddHomeworkScreen(Screen):
 
 class UpdateHomeworkScreen(Screen):
     def compose(self) -> ComposeResult:
+        """Displays the form for updating homework details."""
         yield Vertical(
             Label("Update Homework", id="update-label"),
             Input(placeholder="Sr no.", id="upd-sr"),
@@ -121,6 +131,7 @@ class UpdateHomeworkScreen(Screen):
         )
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
+        """Processes homework update based on input."""
         global Update
         global result
         result = show_homework(self.app.ID)
@@ -156,6 +167,7 @@ class UpdateHomeworkScreen(Screen):
 
 class DeleteHomeworkScreen(Screen):
     def compose(self) -> ComposeResult:
+        """Displays the form to delete homework by Sr. No."""
         yield Vertical(
             Label("Delete Homework", id="delete-label"),
             Input(placeholder="Sr no.", id="del-sr"),
@@ -163,7 +175,9 @@ class DeleteHomeworkScreen(Screen):
                 Button("Delete", id="submit-delete", variant="error"),
                 Button("Back", id="back-delete", variant="primary")
             ))
+
     def on_button_pressed(self, event: Button.Pressed) -> None:
+        """Processes deletion of homework if Sr. No. is valid."""
         global result
         result = show_homework(self.app.ID)
         if event.button.id == "submit-delete":
@@ -186,8 +200,10 @@ class DeleteHomeworkScreen(Screen):
             self.set_timer(2, self.app.pop_screen)
         elif event.button.id == "back-delete":
             self.app.pop_screen()
+
 class ClassStatusScreen(Screen):
     def compose(self) -> ComposeResult:
+        """Displays class-wise homework status table."""
         yield Vertical(
             Label("Class Homework Status", id="class-status-label"),
             DataTable(id="class-table"),
@@ -195,6 +211,7 @@ class ClassStatusScreen(Screen):
         )
 
     def on_mount(self) -> None:
+        """Loads class status data into the table."""
         class_status = class_homework_status(self.app.ID)
         if class_status:
             records = [(item['class'], item['total_students'], item['no_of_submissions'], item['percent_completed']) for item in class_status]
@@ -208,10 +225,12 @@ class ClassStatusScreen(Screen):
             table.add_row("")
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
+        """Navigates back from the class status screen."""
         self.app.pop_screen()
 
 class StudentStatusInputScreen(Screen):
     def compose(self) -> ComposeResult:
+        """Displays input fields to get student HW status."""
         yield Vertical(
             Label("Individual Student HW Status", id="student-input-label"),
             Input(placeholder="Enter student name", id="student-name"),
@@ -223,6 +242,7 @@ class StudentStatusInputScreen(Screen):
         )
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
+        """Handles show/back actions and stores result."""
         global result
         result = individual_homework_status(name=self.query_one("#student-name", Input).value, class_=self.query_one("#student-class", Input).value)
         if event.button.id == "show-status":
@@ -232,6 +252,7 @@ class StudentStatusInputScreen(Screen):
 
 class StudentStatusTableScreen(Screen):
     def compose(self) -> ComposeResult:
+        """Displays the result table for individual student HW status."""
         yield Vertical(
             Label("Homework Status for student_name", id="student-table-label"),
             DataTable(id="student-table"),
@@ -239,6 +260,7 @@ class StudentStatusTableScreen(Screen):
         )
 
     def on_mount(self) -> None:
+        """Loads and shows individual student homework status."""
         global result
         if not result:
             self.query_one("#student-table-label", Label).update("No homework found for the specified student. \nPlease check the name and class.")
@@ -251,6 +273,7 @@ class StudentStatusTableScreen(Screen):
                 table.add_row(*record)
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
+        """Navigates back from the student status screen."""
         self.app.pop_screen()
 
 class TeacherApp(App):
@@ -264,11 +287,13 @@ class TeacherApp(App):
     }
     """
     def __init__(self, user, ID):
+        """Initialize the Teacher application with user and ID."""
         super().__init__()
         self.user = user
         self.ID = ID
 
     def on_mount(self) -> None:
+        """Mount all screens and push home screen."""
         self.install_screen(TeacherHome(), name="home")
         self.install_screen(ViewEditScreen(), name="view_edit")
         self.install_screen(AddHomeworkScreen(), name="add_hw")
@@ -280,5 +305,6 @@ class TeacherApp(App):
         self.push_screen("home")
 
 def run_teacher_app(user, ID):
+    """Starts the teacher app."""
     app = TeacherApp(user, ID)
     app.run()

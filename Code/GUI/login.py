@@ -10,6 +10,7 @@ ID = None
 
 class WelcomeScreen(Screen):
     def compose(self) -> ComposeResult:
+        """Composes the welcome screen with title, authors, and a proceed button."""
         yield Vertical(
             Label("Class XII Investigatory Project:\nHomework Management System\n", id="title"),
             Label("Developed by Shivam Gholap and Aadi Nigam\n ", id="authors"),
@@ -18,6 +19,7 @@ class WelcomeScreen(Screen):
         )
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
+        """Handles the proceed button to navigate to the login screen."""
         if event.button.id == "proceed":
             self.app.push_screen("login")
 
@@ -25,6 +27,7 @@ class LoginScreen(Screen):
     selected_role = var("Student")
 
     def compose(self) -> ComposeResult:
+        """Composes the login screen with role selection and proceed button."""
         yield Vertical(
             Label("Login", id="login-title"),
             RadioSet(
@@ -38,15 +41,18 @@ class LoginScreen(Screen):
         )
 
     def on_radio_set_changed(self, event: RadioSet.Changed) -> None:
+        """Updates the selected role when a radio button is changed."""
         self.selected_role = event.pressed.id
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
+        """Handles the proceed button to move to ID input screen based on role."""
         if event.button.id == "login-proceed":
             self.app.role = self.selected_role
             self.app.push_screen("id")
 
 class IDScreen(Screen):
     def compose(self) -> ComposeResult:
+        """Composes the ID input screen based on the selected role."""
         note = ""
         if self.app.role == "Student":
             note = "Enter any number between 1 to 20"
@@ -64,6 +70,7 @@ class IDScreen(Screen):
         )
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
+        """Processes the entered ID and sets global User and ID variables."""
         global User, ID
         id_text = self.query_one("#id_input", Input).value
         try:
