@@ -35,7 +35,7 @@ This is project is built with python. Various modules of python like textual, my
 2. Install mysql from https://dev.mysql.com/downloads/installer/
 3. Install mysql-connector
    ```sh
-   pip install myswl-connector
+   pip install mysql-connector
    ```
 4. Install textual
    ```sh
