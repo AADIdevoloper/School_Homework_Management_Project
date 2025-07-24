@@ -57,7 +57,7 @@ class IDScreen(Screen):
         if self.app.role == "Student":
             note = "Enter any number between 1 to 20"
         elif self.app.role == "Teacher":
-            note = "Enter any number between 1 to 15"
+            note = "Enter any number between 1 to 10"
         else:
             note = "ID for Principal is 0"
 

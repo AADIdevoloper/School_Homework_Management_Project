@@ -95,7 +95,7 @@ def name(ID):
         if result:
             return result[0]['name']
         else:
-            return "Unknown"
+            return ID
     
 def pendinghw(id):
     """Fetches all pending homeworks for a student based on their ID."""
