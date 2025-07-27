@@ -12,14 +12,14 @@ def get_credentials_path():
     """Returns the path to the credentials.txt file used for DB login."""
     folder = os.getcwd()
     os.makedirs(folder, exist_ok=True)
-    return os.path.join(folder, 'Code\\GUI\\credentials.txt')
+    return os.path.join(folder, 'credentials.txt')
 
 try:
     with open(get_credentials_path(), 'r') as file:
         for line in file:
             user, password = line.strip().split(':')
 except:
-    print("Look's like the text file storing credentials is missing or displaced. Please run setup.py")
+    print("Look's like the text file storing credentials is missing or displaced. Please run Intallation_Wizard.py using `python -m Installation_Wizard`")
 
 def connection(password=password,user=user):
     """Establishes and returns a connection to the MySQL database."""

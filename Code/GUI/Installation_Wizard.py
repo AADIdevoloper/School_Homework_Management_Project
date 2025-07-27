@@ -14,7 +14,7 @@ def execute_query(query):
     """Execute a given SQL query with optional multi-statement support."""
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute(query, multi=True)
+    cursor.execute(query)
     conn.commit()
     cursor.close()
     conn.close()
@@ -33,7 +33,7 @@ def get_credentials_path():
     """Return the full path for the credentials.txt file in the Code/GUI folder."""
     folder = os.getcwd()
     os.makedirs(folder, exist_ok=True)
-    return os.path.join(folder, 'Code\\GUI\\credentials.txt')
+    return os.path.join(folder, 'credentials.txt')
 
 sample_data= [
 '''
@@ -196,8 +196,8 @@ if __name__ == "__main__":
     print("\nWelcome to School Homework Management Setup!\nThis will setup some sample tables in a database named 'School_Management_Database' for testing the system.\n")
 
     # Prompt for credentials
-    username = input("Username: ")
-    password = input("Password: ")
+    username = input("MySQL Username      (Enter 'root'): ")
+    password = input("MySQL Password (Password for root): ")
 
     # Save credentials
     try:
@@ -212,6 +212,8 @@ if __name__ == "__main__":
     try:
         conn = mysql.connector.connect(host="localhost", user=username, password=password)
         cursor = conn.cursor()
+        cursor.execute("DROP DATABASE IF EXISTS School_Management_Database;")
+        conn.commit()
         cursor.execute("CREATE DATABASE IF NOT EXISTS School_Management_Database;")
         conn.commit()
         conn.close()
@@ -306,6 +308,8 @@ if __name__ == "__main__":
 
             i += 1
 
-        print("Database and sample data setup complete!")
+        print("Database and sample data setup complete!\nYou may now proceed to run App.py using `python -m App`")
     except:
-        print("Please make sure you have run `pip install -r requirements.txt` in your terminal and entered correct username and password. Only then proceed with setup.py")
+        print("""Please do check the following: \n
+              1. You have run requirements.txt in the directory where all files including requirements.txt is saved.\n
+              2. You are running Installation Wizard in the directory where all files including credentials.txt is saved.""")

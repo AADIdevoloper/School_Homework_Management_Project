@@ -4,7 +4,7 @@ from textual.containers import Vertical
 from textual.screen import Screen
 from textual.reactive import var
 
-# Global variables to be imported in main.py
+# Global variables to be imported in App.py
 User = None
 ID = None
 

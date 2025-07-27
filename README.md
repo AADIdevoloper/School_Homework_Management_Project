@@ -48,7 +48,7 @@ This is project is built with python. Various modules of python like textual, my
    pip install -r requirements.txt
    ```
 2. Run ```Installation_wizard.py``` to create a sample database.
-3. Run ```main.py``` to run the main App.
+3. Run ```App.py``` to run the main App.
 
 ## Contributing
 Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
