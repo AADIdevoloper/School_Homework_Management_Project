@@ -33,23 +33,20 @@ This is project is built with python. Various modules of python like textual, my
 
 1. Install python from https://www.python.org/downloads/
 2. Install mysql from https://dev.mysql.com/downloads/installer/
-3. Install mysql-connector
-   ```sh
-   pip install mysql-connector
-   ```
-4. Install textual
-   ```sh
-   pip install textual
-   ```
-
-## Usage
-1. Run the following in your terminal:
+3. Run the following in your terminal:
    ```sh
    pip install -r requirements.txt
    ```
-2. Run ```Installation_wizard.py``` to create a sample database.
-3. Run ```App.py``` to run the main App.
+4. Run ```Installation_Wizard.py``` to create a sample database.
+   ```sh
+   python -m Installation_Wizard
+   ```
 
+## Usage
+3. Run ```App.py``` to run the main App.
+   ```sh
+   python -m App
+   ```
 ## Contributing
 Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
 
